@@ -1135,13 +1135,7 @@ export class ViewerComponent implements OnInit {
       clock = new THREE.Clock();
       const axesHelper = new THREE.AxesHelper(500);
 
-      camera = new THREE.PerspectiveCamera(
-        70,
-        document.getElementById('viewer').offsetWidth /
-          (document.getElementById('viewer').offsetWidth / 2),
-        1,
-        2000
-      );
+      camera = new THREE.PerspectiveCamera(70, 1.5, 1, 2000);
       camera.up.set(0, 0.5, 0);
 
       cameraControls = new CameraControls(camera, renderer.domElement);
@@ -1285,7 +1279,7 @@ export class ViewerComponent implements OnInit {
     }
 
     function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      //camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
 
       renderer.setSize(
