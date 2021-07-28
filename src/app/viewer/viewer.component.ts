@@ -1,4 +1,5 @@
 import { Component, OnInit, HostListener } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import * as THREE from 'three';
 
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js';
@@ -17,7 +18,11 @@ CameraControls.install({ THREE: THREE });
   styleUrls: ['./viewer.component.css']
 })
 export class ViewerComponent implements OnInit {
-  constructor() {}
+  public id;
+
+  constructor(private _Activatedroute: ActivatedRoute) {
+    this.id = this._Activatedroute.snapshot.paramMap.get('id');
+  }
 
   ngOnInit() {
     // Find the latest version by visiting https://unpkg.com/three.
@@ -1108,7 +1113,10 @@ export class ViewerComponent implements OnInit {
       console.log('Positions using', frameConfig.mode);
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(
+        document.getElementById('viewer').offsetWidth,
+        document.getElementById('viewer').offsetWidth / 2
+      );
       document.getElementById('viewer').appendChild(renderer.domElement);
 
       scene = new THREE.Scene();
@@ -1122,7 +1130,8 @@ export class ViewerComponent implements OnInit {
 
       camera = new THREE.PerspectiveCamera(
         70,
-        window.innerWidth / window.innerHeight,
+        document.getElementById('viewer').offsetWidth/
+        (document.getElementById('viewer').offsetWidth / 2),
         1,
         2000
       );
@@ -1231,9 +1240,10 @@ export class ViewerComponent implements OnInit {
       //
       window.addEventListener('resize', onWindowResize);
       stats = new Stats();
+      stats.domElement.style.position = 'absolute';
       document.getElementById('viewer').appendChild(stats.dom);
 
-      initGui();
+      //initGui();
     }
 
     function fixAxis(point: any[]) {
@@ -1271,7 +1281,10 @@ export class ViewerComponent implements OnInit {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
 
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(
+        document.getElementById('viewer').offsetWidth,
+        document.getElementById('viewer').offsetWidth / 2
+      );
     }
 
     function animate() {
@@ -1286,10 +1299,6 @@ export class ViewerComponent implements OnInit {
       if (hasControlsUpdated) {
         renderer.render(scene, camera);
       }
-      //controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
-      //camera.rotation.x = THREE.Math.degToRad( camRotateX );
-      //camera.rotation.y = THREE.Math.degToRad( camRotateY );
-      //camera.rotation.z = THREE.Math.degToRad( camRotateZ );
       sessao.rotation.x = THREE.Math.degToRad(frameConfig.camRX);
       sessao.getObjectByName('cama').rotation.x = THREE.Math.degToRad(
         frameConfig.camRX * -1
@@ -1583,5 +1592,6 @@ export class ViewerComponent implements OnInit {
     }
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+  }
 }

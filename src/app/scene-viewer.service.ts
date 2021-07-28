@@ -1001,11 +1001,7 @@ export class SceneViewerService implements OnDestroy {
 
   private frameId: number = null;
 
-  public constructor(private ngZone: NgZone) {
-    this.frame = this.data.actores[0];
-    this.framePointsCount = this.frameConfig.framePointsCount;
-    this.maxFrames = this.data.actores[0].length / this.framePointsCount;
-  }
+  public constructor(private ngZone: NgZone) {}
 
   public ngOnDestroy(): void {
     if (this.frameId != null) {
@@ -1016,6 +1012,10 @@ export class SceneViewerService implements OnDestroy {
 
   public createScene(canvas: ElementRef<HTMLCanvasElement>, id: number): void {
     console.log('service session', id);
+
+    this.frame = this.data.actores[0];
+    this.framePointsCount = this.frameConfig.framePointsCount;
+    this.maxFrames = this.data.actores[0].length / this.framePointsCount;
 
     // The first step is to get the reference of the canvas element from our HTML document
     this.canvas = canvas.nativeElement;
@@ -1107,7 +1107,6 @@ export class SceneViewerService implements OnDestroy {
     this.actor.name = 'actor';
     this.sessao.add(this.actor);
     this.scene.add(this.sessao);
-    this.newFrame(this.scene);
 
     // create lights
     this.dirLight1 = new THREE.DirectionalLight(0xffffff);
@@ -1211,7 +1210,8 @@ export class SceneViewerService implements OnDestroy {
     console.log(this.frame);
     scene.remove(this.actor);
     let startIndex =
-      (this.currentFrame % (this.frame.length / this.framePointsCount)) *
+      (this.currentFrame %
+        (this.data.actores[0].length / this.framePointsCount)) *
       this.framePointsCount;
 
     //console.log('/////////////////')

@@ -20,8 +20,8 @@ import { SessionDetailsComponent } from './session-details/session-details.compo
 const routes: Routes = [
   { path: '', component: AllSessionsComponent },
   { path: 'small', component: SmallSessionsComponent },
-  { path: 'view/:id', component: SceneViewerComponent },
-  { path: 'viewer', component: ViewerComponent }
+  { path: 'view-service/:id', component: SceneViewerComponent },
+  { path: 'view/:id', component: ViewerComponent }
 ];
 
 @NgModule({
