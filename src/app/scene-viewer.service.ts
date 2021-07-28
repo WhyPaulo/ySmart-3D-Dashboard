@@ -6,6 +6,8 @@ CameraControls.install({ THREE: THREE });
 
 @Injectable({ providedIn: 'root' })
 export class SceneViewerService implements OnDestroy {
+  public timestamp;
+
   private canvas: HTMLCanvasElement;
   private renderer: THREE.WebGLRenderer;
   private camera: THREE.PerspectiveCamera;
