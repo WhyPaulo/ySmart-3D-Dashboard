@@ -1,0 +1,19 @@
+<h4 class="text-center">Sessões gravadas com duração inferior a: {{limit}}</h4>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Sessão ID</th>
+      <th scope="col">Duração</th>
+      <th scope="col">Frames</th>
+      <th scope="col">link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let session of sessions">
+      <th scope="row">{{session.session}}</th>
+      <td>{{session.duration}}</td>
+      <td>{{session.frames}}</td>
+      <td><a [routerLink]="['/view/', session.session]">Visualizar</a></td>
+    </tr>
+  </tbody>
+</table>
