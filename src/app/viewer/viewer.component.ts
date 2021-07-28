@@ -1,5 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { GetSmallSessionsService } from '../get-small-sessions.service';
 import * as THREE from 'three';
 
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js';
@@ -20,8 +21,14 @@ CameraControls.install({ THREE: THREE });
 export class ViewerComponent implements OnInit {
   public id;
 
-  constructor(private _Activatedroute: ActivatedRoute) {
+  constructor(
+    private _Activatedroute: ActivatedRoute,
+    private sess: GetSmallSessionsService
+  ) {
     this.id = this._Activatedroute.snapshot.paramMap.get('id');
+    sess.getData(this.id).subscribe((data: any) => {
+      console.log(data);
+    });
   }
 
   ngOnInit() {
@@ -1130,8 +1137,8 @@ export class ViewerComponent implements OnInit {
 
       camera = new THREE.PerspectiveCamera(
         70,
-        document.getElementById('viewer').offsetWidth/
-        (document.getElementById('viewer').offsetWidth / 2),
+        document.getElementById('viewer').offsetWidth /
+          (document.getElementById('viewer').offsetWidth / 2),
         1,
         2000
       );
@@ -1592,6 +1599,5 @@ export class ViewerComponent implements OnInit {
     }
   }
 
-  ngOnDestroy() {
-  }
+  ngOnDestroy() {}
 }
