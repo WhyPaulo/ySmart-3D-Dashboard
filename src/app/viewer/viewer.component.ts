@@ -1239,6 +1239,7 @@ export class ViewerComponent implements OnInit {
       scene.add(ambientLight);
 
       //
+      window.removeEventListener('resize', onWindowResize);
       window.addEventListener('resize', onWindowResize);
       stats = new Stats();
       stats.domElement.style.position = 'absolute';
@@ -1280,6 +1281,7 @@ export class ViewerComponent implements OnInit {
 
     function onWindowResize() {
       //camera.aspect = window.innerWidth / window.innerHeight;
+      console.log('resize');
       camera.updateProjectionMatrix();
 
       renderer.setSize(
