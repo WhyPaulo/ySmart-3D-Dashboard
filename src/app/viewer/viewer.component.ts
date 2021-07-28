@@ -1280,14 +1280,15 @@ export class ViewerComponent implements OnInit {
     }
 
     function onWindowResize() {
-      //camera.aspect = window.innerWidth / window.innerHeight;
-      console.log('resize');
-      camera.updateProjectionMatrix();
+      if (document.getElementById('viewer')) {
+        //camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
 
-      renderer.setSize(
-        document.getElementById('viewer').offsetWidth,
-        document.getElementById('viewer').offsetWidth / 2
-      );
+        renderer.setSize(
+          document.getElementById('viewer').offsetWidth,
+          document.getElementById('viewer').offsetWidth / 2
+        );
+      }
     }
 
     function animate() {
