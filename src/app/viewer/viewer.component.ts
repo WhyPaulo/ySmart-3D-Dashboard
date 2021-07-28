@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { GetSmallSessionsService } from '../get-small-sessions.service';
+import { SessionService } from './session.service';
 import * as THREE from 'three';
 
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js';
@@ -23,7 +23,7 @@ export class ViewerComponent implements OnInit {
 
   constructor(
     private _Activatedroute: ActivatedRoute,
-    private sess: GetSmallSessionsService
+    private sess: SessionService
   ) {
     this.id = this._Activatedroute.snapshot.paramMap.get('id');
     sess.getData(this.id).subscribe((data: any) => {

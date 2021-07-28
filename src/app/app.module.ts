@@ -16,6 +16,7 @@ import { ViewerComponent } from './viewer/viewer.component';
 import { AllSessionsComponent } from './all-sessions/all-sessions.component';
 import { SessionsService } from './sessions.service';
 import { SessionDetailsComponent } from './session-details/session-details.component';
+import { SessionService } from './viewer/session.service';
 
 const routes: Routes = [
   { path: '', component: AllSessionsComponent },
@@ -43,6 +44,6 @@ const routes: Routes = [
     SessionDetailsComponent
   ],
   bootstrap: [AppComponent],
-  providers: [GetSmallSessionsService, SceneViewerService, SessionsService]
+  providers: [GetSmallSessionsService, SceneViewerService, SessionsService, SessionService]
 })
 export class AppModule {}
