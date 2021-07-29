@@ -13,7 +13,9 @@
       <th scope="row">{{session.session}}</th>
       <td>{{session.startDate}}</td>
       <td>{{session.endDate}}</td>
-      <td><a [routerLink]="['/view/', session.session]">Visualizar</a></td>
+      <td class="isDisabled">
+        <a [routerLink]="['/view/', session.session]">Visualizar</a>
+      </td>
     </tr>
   </tbody>
 </table>

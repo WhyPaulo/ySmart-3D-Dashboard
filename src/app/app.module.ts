@@ -10,8 +10,6 @@ import { HelloComponent } from './hello.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { GetSmallSessionsService } from './get-small-sessions.service';
 import { SmallSessionsComponent } from './small-sessions/small-sessions.component';
-import { SceneViewerComponent } from './scene-viewer/scene-viewer.component';
-import { SceneViewerService } from './scene-viewer.service';
 import { ViewerComponent } from './viewer/viewer.component';
 import { AllSessionsComponent } from './all-sessions/all-sessions.component';
 import { SessionsService } from './sessions.service';
@@ -21,7 +19,6 @@ import { SessionService } from './viewer/session.service';
 const routes: Routes = [
   { path: '', component: AllSessionsComponent },
   { path: 'small', component: SmallSessionsComponent },
-  { path: 'view-service/:id', component: SceneViewerComponent },
   { path: 'view/:id', component: ViewerComponent }
 ];
 
@@ -38,12 +35,11 @@ const routes: Routes = [
     AppComponent,
     HelloComponent,
     SmallSessionsComponent,
-    SceneViewerComponent,
     ViewerComponent,
     AllSessionsComponent,
     SessionDetailsComponent
   ],
   bootstrap: [AppComponent],
-  providers: [GetSmallSessionsService, SceneViewerService, SessionsService, SessionService]
+  providers: [GetSmallSessionsService, SessionsService, SessionService]
 })
 export class AppModule {}
