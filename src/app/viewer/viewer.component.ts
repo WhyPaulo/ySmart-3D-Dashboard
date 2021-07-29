@@ -20,7 +20,7 @@ CameraControls.install({ THREE: THREE });
 })
 export class ViewerComponent implements OnInit {
   public id;
-  private requestId;
+  public dataLoaded = false;
   public timestamp = '00:00:00';
 
   private data = {
@@ -63,7 +63,9 @@ export class ViewerComponent implements OnInit {
     this.id = this._Activatedroute.snapshot.paramMap.get('id');
     sess.getData(this.id).subscribe((data: any) => {
       this.data.actores = data.actores;
-      this.buildViewer();
+      //this.buildViewer();
+      this.dataLoaded = true;
+      console.log('loaded')
     });
   }
   ngOnInit() {}

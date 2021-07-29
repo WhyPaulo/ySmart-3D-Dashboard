@@ -2,5 +2,6 @@
   Sessão {{id}}
 </p>
 <div id="viewer">
-  <span id="timestamp">{{timestamp}}</span>
+  <span id="timestamp"></span>
+  <img *ngIf="!dataLoaded" id="loading" class="m-auto d-block" style='width:60px' src="https://whymob.dev/ysmart/loading.gif">
 </div>
