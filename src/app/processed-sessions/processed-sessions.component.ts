@@ -11,6 +11,13 @@ export class ProcessedSessionsComponent implements OnInit {
   constructor() {
     this.sessions = [
       {
+        session: 1625843694,
+        startTime: 1625843694,
+        endTime: 1625843710,
+        duration: '00:00:16',
+        frames: 263
+      },
+      {
         session: 1625844273,
         startTime: 1625844273,
         endTime: 1625844455,

@@ -5,7 +5,6 @@
       <th scope="col">Sessão ID</th>
       <th scope="col">Duração</th>
       <th scope="col">Frames</th>
-      <th scope="col">link</th>
     </tr>
   </thead>
   <tbody>
@@ -13,7 +12,6 @@
       <th scope="row">{{session.session}}</th>
       <td>{{session.duration}}</td>
       <td>{{session.frames}}</td>
-      <td><a [routerLink]="['/view/', session.session]">Visualizar</a></td>
     </tr>
   </tbody>
 </table>
