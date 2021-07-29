@@ -275,7 +275,7 @@ export class ViewerComponent implements OnInit {
     }
 
     function animate() {
-      this.requestId = requestAnimationFrame(animate);
+      requestId = requestAnimationFrame(animate);
 
       stats.update();
 
