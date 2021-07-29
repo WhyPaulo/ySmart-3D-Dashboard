@@ -63,9 +63,9 @@ export class ViewerComponent implements OnInit {
     this.id = this._Activatedroute.snapshot.paramMap.get('id');
     sess.getData(this.id).subscribe((data: any) => {
       this.data.actores = data.actores;
-      //this.buildViewer();
+      this.data.camaPoints = data.camaPoints;
+      this.buildViewer();
       this.dataLoaded = true;
-      console.log('loaded')
     });
   }
   ngOnInit() {}
@@ -140,7 +140,7 @@ export class ViewerComponent implements OnInit {
       sessao = new THREE.Group();
       sessao.name = 'sessao';
 
-      scene.add(axesHelper);
+      //scene.add(axesHelper);
 
       //CAMA
       const cama = new THREE.Group();
@@ -170,7 +170,7 @@ export class ViewerComponent implements OnInit {
         fixedDispensadorPoint.y,
         fixedDispensadorPoint.z
       );
-      //dispensador1.rotation.x = THREE.Math.degToRad( frameConfig.camR );
+      dispensador1.rotation.x = THREE.Math.degToRad( frameConfig.camR* -1 );
 
       const dispensador2 = new THREE.Mesh(dispensador2Geo, dispensadorMat);
       fixedDispensadorPoint = fixAxis([903.75, 186.5, 3.917]);
@@ -181,7 +181,7 @@ export class ViewerComponent implements OnInit {
       );
       dispensador2.rotation.x = THREE.Math.degToRad(frameConfig.camR);
 
-      //sessao.add( dispensador1 )
+      sessao.add( dispensador1 )
       //scene.add( dispensador2 )
 
       //ADD Detected floor
@@ -205,7 +205,7 @@ export class ViewerComponent implements OnInit {
         floorPoints
       );
       const baseFloor = new THREE.Line(floorGeometry, floorLineineMaterial);
-      sessao.add(baseFloor);
+      //sessao.add(baseFloor);
 
       //Create actor group for animation
       actor = new THREE.Group();
