@@ -83,7 +83,7 @@ export class ViewerComponent implements OnInit {
     let currentPoints = [];
     let play = true;
     let paused = false;
-    let fps = 2;
+    let fps = 15;
     let factor = 100;
     let currentFrame = 0;
     let maxFrames;
