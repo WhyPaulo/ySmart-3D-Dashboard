@@ -85,7 +85,7 @@ export class ViewerComponent implements OnInit {
     let factor = 100;
     let currentFrame = 0;
     let maxFrames;
-    let requestId = this.requestId;
+    var requestId;
     //Frames
     var frame, camaPoints, dispensadores, detectedFloor;
 
@@ -100,6 +100,9 @@ export class ViewerComponent implements OnInit {
     animate();
 
     function init() {
+      if (requestId) {
+        console.error('requestID present)');
+      }
       console.log('Positions using', frameConfig.mode);
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -275,8 +278,11 @@ export class ViewerComponent implements OnInit {
     }
 
     function animate() {
-      requestId = requestAnimationFrame(animate);
-
+      if (document.getElementById('viewer')) {
+        requestAnimationFrame(animate);
+      } else {
+        console.log('No animate for you!');
+      }
       stats.update();
 
       const delta = clock.getDelta();
