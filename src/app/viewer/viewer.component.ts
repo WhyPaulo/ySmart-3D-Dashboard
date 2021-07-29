@@ -1,6 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SessionService } from './session.service';
+import moment from 'moment';
 import * as THREE from 'three';
 
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js';
@@ -20,6 +21,9 @@ CameraControls.install({ THREE: THREE });
 })
 export class ViewerComponent implements OnInit {
   public id;
+  public sessionDate;
+  public sessionDuration;
+  public totalFrames;
   public dataLoaded = false;
   public timestamp = '00:00:00';
 
@@ -61,7 +65,10 @@ export class ViewerComponent implements OnInit {
     private sess: SessionService
   ) {
     this.id = this._Activatedroute.snapshot.paramMap.get('id');
+    this.sessionDate = moment(this.id * 1000).format('DD/MM/YYYY HH:mm:ss');
     sess.getData(this.id).subscribe((data: any) => {
+      this.totalFrames = data.actores[0].length / 18;
+      this.sessionDuration = data.duration;
       this.data.actores = data.actores;
       //this.data.camaPoints = data.camaPoints;
       this.buildViewer();
