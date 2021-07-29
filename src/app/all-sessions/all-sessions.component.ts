@@ -16,10 +16,10 @@ export class AllSessionsComponent implements OnInit {
       this.sessions = data;
       this.sessions.forEach(session => {
         session.startDate = moment(session.startTime * 1000).format(
-          'DD/MM/YYYY hh:mm:ss'
+          'DD/MM/YYYY HH:mm:ss'
         );
         session.endDate = moment(session.endTime * 1000).format(
-          'DD/MM/YYYY hh:mm:ss'
+          'DD/MM/YYYY HH:mm:ss'
         );
       });
     });

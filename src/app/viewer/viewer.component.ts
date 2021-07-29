@@ -81,7 +81,7 @@ export class ViewerComponent implements OnInit {
     let currentPoints = [];
     let play = true;
     let paused = false;
-    let fps = 1;
+    let fps = 2;
     let factor = 100;
     let currentFrame = 0;
     let maxFrames;
@@ -378,7 +378,7 @@ export class ViewerComponent implements OnInit {
           for (let j = 0; j < bodyPointsIndex[i].length; j++) {
             //Skip point if it's above threshold
             if (
-              frame[startIndex + (bodyPointsIndex[i][j] - 1)][3] >
+              frame[startIndex + (bodyPointsIndex[i][j] - 1)].p >
               frameConfig.minP
             ) {
               let fixedPoint = { x: 0, y: 0, z: 0, p: 0 };
@@ -544,7 +544,7 @@ export class ViewerComponent implements OnInit {
       gui = new GUI();
 
       const param = {
-        FPS: 1,
+        FPS: 2,
         Frame: currentFrame,
         Playing: true,
         Paused: false,
