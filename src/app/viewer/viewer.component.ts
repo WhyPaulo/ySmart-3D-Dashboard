@@ -236,9 +236,9 @@ export class ViewerComponent implements OnInit {
       //
       window.removeEventListener('resize', onWindowResize);
       window.addEventListener('resize', onWindowResize);
-      stats = new Stats();
-      stats.domElement.style.position = 'absolute';
-      document.getElementById('viewer').appendChild(stats.dom);
+      //stats = new Stats();
+      //stats.domElement.style.position = 'absolute';
+      //document.getElementById('viewer').appendChild(stats.dom);
 
       //initGui();
     }
@@ -292,7 +292,7 @@ export class ViewerComponent implements OnInit {
       } else {
         console.log('No animate for you!');
       }
-      stats.update();
+      //stats.update();
 
       const delta = clock.getDelta();
       const hasControlsUpdated = cameraControls.update(delta);
