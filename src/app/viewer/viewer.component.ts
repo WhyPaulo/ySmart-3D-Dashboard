@@ -28,7 +28,7 @@ export class ViewerComponent implements OnInit {
       x: 640,
       y: 480,
       z: 5,
-      bedW: 120,
+      bedW: 100,
       bedD: 200,
       bedH: 50,
       camY: -300,
@@ -63,7 +63,7 @@ export class ViewerComponent implements OnInit {
     this.id = this._Activatedroute.snapshot.paramMap.get('id');
     sess.getData(this.id).subscribe((data: any) => {
       this.data.actores = data.actores;
-      this.data.camaPoints = data.camaPoints;
+      //this.data.camaPoints = data.camaPoints;
       this.buildViewer();
       this.dataLoaded = true;
     });
@@ -170,7 +170,7 @@ export class ViewerComponent implements OnInit {
         fixedDispensadorPoint.y,
         fixedDispensadorPoint.z
       );
-      dispensador1.rotation.x = THREE.Math.degToRad( frameConfig.camR* -1 );
+      //dispensador1.rotation.x = THREE.Math.degToRad( frameConfig.camR* -1 );
 
       const dispensador2 = new THREE.Mesh(dispensador2Geo, dispensadorMat);
       fixedDispensadorPoint = fixAxis([903.75, 186.5, 3.917]);
@@ -181,7 +181,7 @@ export class ViewerComponent implements OnInit {
       );
       dispensador2.rotation.x = THREE.Math.degToRad(frameConfig.camR);
 
-      sessao.add( dispensador1 )
+      sessao.add(dispensador1);
       //scene.add( dispensador2 )
 
       //ADD Detected floor
