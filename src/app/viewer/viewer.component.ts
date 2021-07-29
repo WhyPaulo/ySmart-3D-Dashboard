@@ -30,7 +30,7 @@ export class ViewerComponent implements OnInit {
       z: 5,
       bedW: 100,
       bedD: 200,
-      bedH: 50,
+      bedH: 20,
       camY: -300,
       camRX: -36,
       minP: 0,
