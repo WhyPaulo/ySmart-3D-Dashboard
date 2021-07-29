@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { GetSmallSessionsService } from '../get-small-sessions.service';
+import { GetSmallSessionsService } from './get-small-sessions.service';
 
 @Component({
   selector: 'app-small-sessions',

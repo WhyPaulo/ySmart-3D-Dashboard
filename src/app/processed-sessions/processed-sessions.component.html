@@ -1,0 +1,21 @@
+<h4 class="text-center">Todas Sessões gravadas</h4>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Sessão ID</th>
+      <th scope="col">Início</th>
+      <th scope="col">Fim</th>
+      <th scope="col">link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let session of sessions">
+      <th scope="row">{{session.session}}</th>
+      <td>{{session.startDate}}</td>
+      <td>{{session.endDate}}</td>
+      <td>
+        <a [routerLink]="['/view/', session.session]">Visualizar</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
