@@ -80,13 +80,18 @@ export class ViewerComponent implements OnInit {
   buildViewer() {
     this.timestamp = '0';
     // Find the latest version by visiting https://unpkg.com/three.
-    let camera, scene, renderer, actor, sessao, floor, cameraControls, clock;
+    let camera,
+      scene,
+      renderer,
+      actor,
+      sessao,
+      floor,
+      cameraControls,
+      clock,
+      stats,
+      gui;
 
-    let stats;
-    let gui;
-
-    let frameConfig;
-    let framePointsCount;
+    let frameConfig, framePointsCount;
     let currentPoints = [];
     let play = true;
     let paused = false;
@@ -109,9 +114,6 @@ export class ViewerComponent implements OnInit {
     animate();
 
     function init() {
-      if (requestId) {
-        console.error('requestID present)');
-      }
       console.log('Positions using', frameConfig.mode);
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -127,12 +129,14 @@ export class ViewerComponent implements OnInit {
 
       scene.add(floor);
 
-      clock = new THREE.Clock();
       const axesHelper = new THREE.AxesHelper(500);
+      //scene.add(axesHelper);
 
+      // Set Camera
       camera = new THREE.PerspectiveCamera(70, 1.5, 1, 2000);
       camera.up.set(0, 0.5, 0);
-
+      // Set Camera Controls
+      clock = new THREE.Clock();
       cameraControls = new CameraControls(camera, renderer.domElement);
       cameraControls.setLookAt(
         0,
@@ -146,8 +150,6 @@ export class ViewerComponent implements OnInit {
 
       sessao = new THREE.Group();
       sessao.name = 'sessao';
-
-      //scene.add(axesHelper);
 
       //CAMA
       const cama = new THREE.Group();
