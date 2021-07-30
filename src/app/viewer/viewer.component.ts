@@ -26,6 +26,7 @@ export class ViewerComponent implements OnInit {
   public totalFrames;
   public dataLoaded = false;
   public timestamp = '00:00:00';
+  public requestId;
 
   private data = {
     frameConfig: {
@@ -79,6 +80,7 @@ export class ViewerComponent implements OnInit {
 
   buildViewer() {
     this.timestamp = '0';
+    let comp = this;
     // Find the latest version by visiting https://unpkg.com/three.
     let camera,
       scene,
@@ -99,7 +101,6 @@ export class ViewerComponent implements OnInit {
     let factor = 100;
     let currentFrame = 0;
     let maxFrames;
-    var requestId;
     //Frames
     var frame, camaPoints, dispensadores, detectedFloor;
 
@@ -116,21 +117,22 @@ export class ViewerComponent implements OnInit {
     function init() {
       console.log('Positions using', frameConfig.mode);
 
+      // Set renderer
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(
         document.getElementById('viewer').offsetWidth,
         document.getElementById('viewer').offsetWidth / 2
       );
+
       document.getElementById('viewer').appendChild(renderer.domElement);
 
+      // Set scene
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0xeeeeee);
+
+      // Set floor helper
       floor = new THREE.GridHelper(frameConfig.x, 10);
-
       scene.add(floor);
-
-      const axesHelper = new THREE.AxesHelper(500);
-      //scene.add(axesHelper);
 
       // Set Camera
       camera = new THREE.PerspectiveCamera(70, 1.5, 1, 2000);
@@ -290,9 +292,10 @@ export class ViewerComponent implements OnInit {
 
     function animate() {
       if (document.getElementById('viewer')) {
-        requestAnimationFrame(animate);
+        comp.requestId = requestAnimationFrame(animate);
       } else {
-        console.log('No animate for you!');
+        cancelAnimationFrame(comp.requestId);
+        console.log('No animate for you!', comp.requestId);
       }
       //stats.update();
 
@@ -319,135 +322,136 @@ export class ViewerComponent implements OnInit {
       renderer.render(scene, camera);
     }
     function newFrame2() {
-      if (play) {
-        //var selectedObject = scene.getObjectByName('actor');
-        actor.clear();
-        sessao.remove(actor);
-        let startIndex =
-          (currentFrame % (frame.length / framePointsCount)) * framePointsCount;
+      //var selectedObject = scene.getObjectByName('actor');
+      actor.clear();
+      sessao.remove(actor);
+      let startIndex =
+        (currentFrame % (frame.length / framePointsCount)) * framePointsCount;
 
-        //console.log('/////////////////')
-        //console.log('// FRAME',currentFrame%(frame.length/framePointsCount))
+      //console.log('/////////////////')
+      //console.log('// FRAME',currentFrame%(frame.length/framePointsCount))
+
+      //rebuild actor
+      //create a blue LineBasicMaterial
+      const lineMaterial = new THREE.LineBasicMaterial({
+        vertexColors: THREE.VertexColors, // inform material that geometry will provide color info
+        linewidth: 40 // lineWidth not universally supported works with safari
+      });
+      const pointMaterial = new THREE.PointsMaterial({
+        size: 2,
+        vertexColors: THREE.VertexColors
+      });
+
+      let pointColors = [];
+      let points = [];
+
+      actor = new THREE.Group();
+      actor.name = 'actor';
+
+      for (let i = 0; i < 5; i++) {
+        let fixedPoint = fixAxis(frame[startIndex + i]);
+        pointColors.push(1 - 1 * frame[i][3], 1 * frame[i][3], 0);
+        points.push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
+      }
+
+      const headGeometry = new THREE.BufferGeometry();
+      headGeometry.setAttribute(
+        'position',
+        new THREE.Float32BufferAttribute(points, 3)
+      );
+      headGeometry.setAttribute(
+        'color',
+        new THREE.Float32BufferAttribute(pointColors, 3)
+      );
+      let head = new THREE.Points(headGeometry, pointMaterial);
+
+      actor.add(head);
+
+      const bodyPointsIndex = [
+        [10, 8, 6, 12, 14, 16],
+        [11, 9, 7, 13, 15, 17],
+        [6, 7],
+        [12, 13]
+      ];
+      let linePoints = [];
+      let lineGeometries = [];
+      let lineColors = [];
+      let lines = [];
+      let currentPoint;
+      for (let i = 0; i < bodyPointsIndex.length; i++) {
+        linePoints[i] = [];
+        lineColors[i] = [];
+        lineGeometries[i] = new THREE.BufferGeometry().setFromPoints(
+          linePoints[i]
+        );
+        for (let j = 0; j < bodyPointsIndex[i].length; j++) {
+          //Skip point if it's above threshold
+          if (
+            frame[startIndex + (bodyPointsIndex[i][j] - 1)].p > frameConfig.minP
+          ) {
+            let fixedPoint = { x: 0, y: 0, z: 0, p: 0 };
+            let newPoint = { x: 0, y: 0, z: 0, p: 1 };
+            //if starting frame skip max velocity check
+            if (startIndex < framePointsCount) {
+              fixedPoint = fixAxis(
+                frame[startIndex + (bodyPointsIndex[i][j] - 1)]
+              );
+              currentPoints[bodyPointsIndex[i][j] - 1] = fixedPoint;
+            } else {
+              fixedPoint = fixAxis(
+                frame[startIndex + (bodyPointsIndex[i][j] - 1)]
+              );
+              currentPoint = currentPoints[bodyPointsIndex[i][j] - 1];
+              newPoint.x = motionLimiter(
+                fixedPoint.x,
+                currentPoint.x,
+                frameConfig.maxMovement
+              );
+              newPoint.y = motionLimiter(
+                fixedPoint.y,
+                currentPoint.y,
+                frameConfig.maxMovement
+              );
+              newPoint.z = motionLimiter(
+                fixedPoint.z,
+                currentPoint.z,
+                frameConfig.maxMovement
+              );
+              newPoint.p = fixedPoint.p;
+              fixedPoint = newPoint;
+              currentPoints[bodyPointsIndex[i][j] - 1] = fixedPoint;
+            }
+
+            linePoints[i].push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
+            lineColors[i].push(1 - 1 * fixedPoint.p, 1 * fixedPoint.p, 0);
+          }
+        }
+        lineGeometries[i].setAttribute(
+          'position',
+          new THREE.Float32BufferAttribute(linePoints[i], 3)
+        );
+        lineGeometries[i].setAttribute(
+          'color',
+          new THREE.Float32BufferAttribute(lineColors[i], 3)
+        );
+        lines[i] = new THREE.Line(lineGeometries[i], lineMaterial);
+        lines[i].computeLineDistances();
+        actor.add(lines[i]);
+      }
+      sessao.add(actor);
+      //scene.add(sessao)
+      if (!paused) {
+        currentFrame++;
+      }
+      if (document.getElementById('viewer')) {
         document.getElementById('timestamp').innerText = (
           currentFrame %
           (frame.length / framePointsCount)
         ).toString();
-
-        //rebuild actor
-        //create a blue LineBasicMaterial
-        const lineMaterial = new THREE.LineBasicMaterial({
-          vertexColors: THREE.VertexColors, // inform material that geometry will provide color info
-          linewidth: 40 // lineWidth not universally supported works with safari
-        });
-        const pointMaterial = new THREE.PointsMaterial({
-          size: 2,
-          vertexColors: THREE.VertexColors
-        });
-
-        let pointColors = [];
-        let points = [];
-
-        actor = new THREE.Group();
-        actor.name = 'actor';
-
-        for (let i = 0; i < 5; i++) {
-          let fixedPoint = fixAxis(frame[startIndex + i]);
-          pointColors.push(1 - 1 * frame[i][3], 1 * frame[i][3], 0);
-          points.push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
-        }
-
-        const headGeometry = new THREE.BufferGeometry();
-        headGeometry.setAttribute(
-          'position',
-          new THREE.Float32BufferAttribute(points, 3)
-        );
-        headGeometry.setAttribute(
-          'color',
-          new THREE.Float32BufferAttribute(pointColors, 3)
-        );
-        let head = new THREE.Points(headGeometry, pointMaterial);
-
-        actor.add(head);
-
-        const bodyPointsIndex = [
-          [10, 8, 6, 12, 14, 16],
-          [11, 9, 7, 13, 15, 17],
-          [6, 7],
-          [12, 13]
-        ];
-        let linePoints = [];
-        let lineGeometries = [];
-        let lineColors = [];
-        let lines = [];
-        let currentPoint;
-        for (let i = 0; i < bodyPointsIndex.length; i++) {
-          linePoints[i] = [];
-          lineColors[i] = [];
-          lineGeometries[i] = new THREE.BufferGeometry().setFromPoints(
-            linePoints[i]
-          );
-          for (let j = 0; j < bodyPointsIndex[i].length; j++) {
-            //Skip point if it's above threshold
-            if (
-              frame[startIndex + (bodyPointsIndex[i][j] - 1)].p >
-              frameConfig.minP
-            ) {
-              let fixedPoint = { x: 0, y: 0, z: 0, p: 0 };
-              let newPoint = { x: 0, y: 0, z: 0, p: 1 };
-              //if starting frame skip max velocity check
-              if (startIndex < framePointsCount) {
-                fixedPoint = fixAxis(
-                  frame[startIndex + (bodyPointsIndex[i][j] - 1)]
-                );
-                currentPoints[bodyPointsIndex[i][j] - 1] = fixedPoint;
-              } else {
-                fixedPoint = fixAxis(
-                  frame[startIndex + (bodyPointsIndex[i][j] - 1)]
-                );
-                currentPoint = currentPoints[bodyPointsIndex[i][j] - 1];
-                newPoint.x = motionLimiter(
-                  fixedPoint.x,
-                  currentPoint.x,
-                  frameConfig.maxMovement
-                );
-                newPoint.y = motionLimiter(
-                  fixedPoint.y,
-                  currentPoint.y,
-                  frameConfig.maxMovement
-                );
-                newPoint.z = motionLimiter(
-                  fixedPoint.z,
-                  currentPoint.z,
-                  frameConfig.maxMovement
-                );
-                newPoint.p = fixedPoint.p;
-                fixedPoint = newPoint;
-                currentPoints[bodyPointsIndex[i][j] - 1] = fixedPoint;
-              }
-
-              linePoints[i].push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
-              lineColors[i].push(1 - 1 * fixedPoint.p, 1 * fixedPoint.p, 0);
-            }
-          }
-          lineGeometries[i].setAttribute(
-            'position',
-            new THREE.Float32BufferAttribute(linePoints[i], 3)
-          );
-          lineGeometries[i].setAttribute(
-            'color',
-            new THREE.Float32BufferAttribute(lineColors[i], 3)
-          );
-          lines[i] = new THREE.Line(lineGeometries[i], lineMaterial);
-          lines[i].computeLineDistances();
-          actor.add(lines[i]);
-        }
-        sessao.add(actor);
-        //scene.add(sessao)
-        if (!paused) {
-          currentFrame++;
-        }
+        setTimeout(newFrame2, 1000 / fps);
+      } else {
+        console.log('newframe stopped');
       }
-      setTimeout(newFrame2, 1000 / fps);
       //console.log(actor)
     }
     function newFrame() {

@@ -6,5 +6,5 @@
   <img *ngIf="!dataLoaded" id="loading" class="m-auto d-block" style='width:60px' src="https://whymob.dev/ysmart/loading.gif">
 </div>
 <p class="text-center" *ngIf="dataLoaded">Sessão gravada em {{sessionDate}} com uma duração de {{sessionDuration}} e
-  {{totalFrames}} frames
+  {{totalFrames}} frames. ({{requestId}})
 </p>

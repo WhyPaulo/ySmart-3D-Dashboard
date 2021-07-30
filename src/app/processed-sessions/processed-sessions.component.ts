@@ -42,5 +42,21 @@ export class ProcessedSessionsComponent implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadJsFile(
+      'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js',
+      'jquery'
+    );
+  }
+  public loadJsFile(url, id) {
+    let node = document.createElement('script');
+    node.src = url;
+    node.type = 'text/javascript';
+    node.id = id;
+    if (document.getElementById(id)) {
+      console.log('script already present');
+    } else {
+      //document.getElementsByTagName('head')[0].appendChild(node);
+    }
+  }
 }

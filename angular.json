@@ -26,9 +26,7 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ],
-            "scripts": [
-              "src/assets/js/test.js"
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {
