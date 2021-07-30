@@ -1,5 +1,5 @@
 //// declare this JS file under the script section in angular.json file (line: 33)
-alert('loaded');
+console.log('loaded');
 function myMethod(message) {
-  alert(message);
+  console.log(message);
 }
