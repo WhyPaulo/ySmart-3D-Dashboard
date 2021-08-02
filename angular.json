@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "demo": {
+    "3D_Dashboard": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/demo",
+            "outputPath": "dist/3D_Dashboard",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -26,7 +26,14 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "aot": false,
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -46,23 +53,24 @@
               "vendorChunk": false,
               "buildOptimizer": true
             }
-          }
+          },
+          "defaultConfiguration": ""
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "demo:build"
+            "browserTarget": "3D_Dashboard:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "demo:build:production"
+              "browserTarget": "3D_Dashboard:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "demo:build"
+            "browserTarget": "3D_Dashboard:build"
           }
         },
         "test": {
@@ -98,8 +106,8 @@
       }
     }
   },
-  "defaultProject": "demo",
+  "defaultProject": "3D_Dashboard",
   "cli": {
-    "analytics": "b4348c2a-4d93-4617-b95d-09de303cb32d"
+    "analytics": "fec09d84-d879-49bd-ab3c-7f5603aef16d"
   }
 }

@@ -181,7 +181,6 @@ export class ViewerComponent implements OnInit {
         fixedDispensadorPoint.y,
         fixedDispensadorPoint.z
       );
-      dispensador2.rotation.x = frameConfig.camRX * -1 * (Math.PI / 180);
 
       sessao.add(dispensador1);
       //scene.add( dispensador2 )
@@ -297,7 +296,7 @@ export class ViewerComponent implements OnInit {
       if (hasControlsUpdated) {
         renderer.render(scene, camera);
       }
-      sessao.rotation.x = frameConfig.camRX * -1 * (Math.PI / 180);
+      sessao.rotation.x = frameConfig.camRX * (Math.PI / 180);
       sessao.getObjectByName('cama').rotation.x =
         frameConfig.camRX * -1 * (Math.PI / 180);
 
@@ -324,12 +323,12 @@ export class ViewerComponent implements OnInit {
       //rebuild actor
       //create a blue LineBasicMaterial
       const lineMaterial = new THREE.LineBasicMaterial({
-        vertexColors: THREE.VertexColors, // inform material that geometry will provide color info
+        vertexColors: (<any>THREE).VertexColors, // inform material that geometry will provide color info
         linewidth: 40 // lineWidth not universally supported works with safari
       });
       const pointMaterial = new THREE.PointsMaterial({
         size: 2,
-        vertexColors: THREE.VertexColors
+        vertexColors: (<any>THREE).VertexColors
       });
 
       let pointColors = [];
