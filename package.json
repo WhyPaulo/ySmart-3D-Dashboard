@@ -18,7 +18,6 @@
     "@types/three": "^0.130.1",
     "bootstrap": "^5.0.2",
     "camera-controls": "^1.29.1",
-    "moment": "^2.29.1",
     "rxjs": "^7.1.0",
     "three": "^0.130.1",
     "tslib": "^2.3.0",

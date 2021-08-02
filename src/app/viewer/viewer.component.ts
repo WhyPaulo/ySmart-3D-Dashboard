@@ -1,7 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SessionService } from './session.service';
-import * as moment from 'moment';
 import * as THREE from 'three';
 
 import CameraControls from 'camera-controls';
@@ -59,7 +58,7 @@ export class ViewerComponent implements OnInit {
     private sess: SessionService
   ) {
     this.id = this._Activatedroute.snapshot.paramMap.get('id');
-    this.sessionDate = moment(this.id * 1000).format('DD/MM/YYYY HH:mm:ss');
+    this.sessionDate = new Date(this.id * 1000).toLocaleString('pt-PT');
     sess.getData(this.id).subscribe((data: any) => {
       this.totalFrames = data.actores[0].length / 18;
       this.sessionDuration = data.duration;

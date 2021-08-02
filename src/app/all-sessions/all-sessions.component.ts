@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { SessionsService } from './sessions.service';
-import * as moment from 'moment';
 
 @Component({
   selector: 'app-all-sessions',
@@ -15,11 +14,11 @@ export class AllSessionsComponent implements OnInit {
     sess.getData().subscribe((data: any) => {
       this.sessions = data;
       this.sessions.forEach(session => {
-        session.startDate = moment(session.startTime * 1000).format(
-          'DD/MM/YYYY HH:mm:ss'
+        session.startDate = new Date(session.startTime * 1000).toLocaleString(
+          'pt-PT'
         );
-        session.endDate = moment(session.endTime * 1000).format(
-          'DD/MM/YYYY HH:mm:ss'
+        session.endDate = new Date(session.endTime * 1000).toLocaleString(
+          'pt-PT'
         );
       });
     });
