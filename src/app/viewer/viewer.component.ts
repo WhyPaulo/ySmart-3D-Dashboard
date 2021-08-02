@@ -16,7 +16,7 @@ export class ViewerComponent implements OnInit {
   public sessionDate;
   public sessionDuration;
   public totalFrames;
-  public dataLoaded = false;
+  public showSpinner = true;
   public timestamp = '00:00:00';
   public requestId;
 
@@ -70,7 +70,7 @@ export class ViewerComponent implements OnInit {
       this.data.actores = data.actores;
       //this.data.camaPoints = data.camaPoints;
       this.buildViewer();
-      this.dataLoaded = true;
+      this.showSpinner = false;
     });
   }
 

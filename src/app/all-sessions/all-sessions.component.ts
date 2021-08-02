@@ -8,8 +8,9 @@ import { HttpClient } from '@angular/common/http';
 })
 export class AllSessionsComponent implements OnInit {
   
-  sessions: any;
-  
+  public sessions: any;
+  public showSpinner = true;
+
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
@@ -26,6 +27,7 @@ export class AllSessionsComponent implements OnInit {
             'pt-PT'
           );
         });
+        this.showSpinner = false;
       });
   }
 }

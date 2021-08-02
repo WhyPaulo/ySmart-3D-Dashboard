@@ -1,10 +1,20 @@
 <p class="text-center fw-bold text-uppercase">
   Sessão {{id}}
 </p>
-<div id="viewer">
-  <span id="timestamp"></span>
-  <img *ngIf="!dataLoaded" id="loading" class="m-auto d-block" style='width:60px' src="https://whymob.dev/ysmart/loading.gif">
+<div class="position-relative">
+  <div class="viewer-wrapper" [class.blurred]="showSpinner">
+    <div id="viewer">
+      <span id="timestamp"></span>
+    </div>
+    <p class="text-center" *ngIf="!showSpinner">Sessão gravada em {{sessionDate}} com uma duração de {{sessionDuration}} e
+      {{totalFrames}} frames. ({{requestId}})
+    </p>
+  </div>
+  <div class="overlay position-absolute top-0 end-0" *ngIf="showSpinner">
+    <div class="spinner-wrapper pt-5">
+      <img class="m-auto d-block mt-5" style='width:60px' src="https://whymob.dev/ysmart/loading.gif">
+    </div>
+  </div>
 </div>
-<p class="text-center" *ngIf="dataLoaded">Sessão gravada em {{sessionDate}} com uma duração de {{sessionDuration}} e
-  {{totalFrames}} frames. ({{requestId}})
-</p>
+
+
