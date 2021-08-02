@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { APP_BASE_HREF } from '@angular/common';
 
 import { AppComponent } from './app.component';
 import { HelloComponent } from './hello.component';
@@ -43,6 +44,14 @@ const routes: Routes = [
     ProcessedSessionsComponent
   ],
   bootstrap: [AppComponent],
-  providers: [GetSmallSessionsService, SessionsService, SessionService]
+  providers: [
+    GetSmallSessionsService,
+    SessionsService,
+    SessionService,
+    {
+      provide: APP_BASE_HREF,
+      useValue: '/' + (window.location.pathname.split('/')[1] || '')
+    }
+  ]
 })
 export class AppModule {}
