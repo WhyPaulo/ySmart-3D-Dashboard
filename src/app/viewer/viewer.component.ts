@@ -1,15 +1,8 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SessionService } from './session.service';
-import moment from 'moment';
+import * as moment from 'moment';
 import * as THREE from 'three';
-
-import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry.js';
-import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-
-import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
-
-import Stats from 'three/examples/jsm/libs/stats.module.js';
 
 import CameraControls from 'camera-controls';
 CameraControls.install({ THREE: THREE });
@@ -181,7 +174,6 @@ export class ViewerComponent implements OnInit {
         fixedDispensadorPoint.y,
         fixedDispensadorPoint.z
       );
-      //dispensador1.rotation.x = THREE.Math.degToRad( frameConfig.camR* -1 );
 
       const dispensador2 = new THREE.Mesh(dispensador2Geo, dispensadorMat);
       fixedDispensadorPoint = fixAxis([903.75, 186.5, 3.917]);
@@ -190,7 +182,7 @@ export class ViewerComponent implements OnInit {
         fixedDispensadorPoint.y,
         fixedDispensadorPoint.z
       );
-      dispensador2.rotation.x = THREE.Math.degToRad(frameConfig.camR);
+      dispensador2.rotation.x = frameConfig.camRX * -1 * (Math.PI / 180);
 
       sessao.add(dispensador1);
       //scene.add( dispensador2 )
@@ -306,10 +298,9 @@ export class ViewerComponent implements OnInit {
       if (hasControlsUpdated) {
         renderer.render(scene, camera);
       }
-      sessao.rotation.x = THREE.Math.degToRad(frameConfig.camRX);
-      sessao.getObjectByName('cama').rotation.x = THREE.Math.degToRad(
-        frameConfig.camRX * -1
-      );
+      sessao.rotation.x = frameConfig.camRX * -1 * (Math.PI / 180);
+      sessao.getObjectByName('cama').rotation.x =
+        frameConfig.camRX * -1 * (Math.PI / 180);
 
       sessao.position.z = -frameConfig.camY / 2;
       sessao.position.y = -frameConfig.camY;
@@ -454,86 +445,6 @@ export class ViewerComponent implements OnInit {
       }
       //console.log(actor)
     }
-    function newFrame() {
-      if (play) {
-        actor.clear();
-        //console.log('frame', actor.geometry.attributes.position.array[0])
-        let startIndex = (currentFrame % (frame.length / 18)) * 18;
-        //console.log(startIndex)
-        //[10,8,6,12,14,16],
-        //[11,9,7,13,15,17],
-        //[6,7],
-        //[12,13]
-        //Head points update [0,1,2,3,4] (5*3) [0]
-        updateBodyPart(
-          [
-            fixAxis(frame[startIndex + 0]),
-            fixAxis(frame[startIndex + 1]),
-            fixAxis(frame[startIndex + 2]),
-            fixAxis(frame[startIndex + 3]),
-            fixAxis(frame[startIndex + 4])
-          ],
-          0
-        );
-        //Left body line update [10,8,6,12,14,16] (6*3=17) [1]
-        updateBodyPart(
-          [
-            fixAxis(frame[startIndex + 9]),
-            fixAxis(frame[startIndex + 7]),
-            fixAxis(frame[startIndex + 5]),
-            fixAxis(frame[startIndex + 11]),
-            fixAxis(frame[startIndex + 13]),
-            fixAxis(frame[startIndex + 15])
-          ],
-          1
-        );
-        //Right body line update [11,9,7,13,15,17] (6*3=17) [2]
-        updateBodyPart(
-          [
-            fixAxis(frame[startIndex + 10]),
-            fixAxis(frame[startIndex + 8]),
-            fixAxis(frame[startIndex + 6]),
-            fixAxis(frame[startIndex + 12]),
-            fixAxis(frame[startIndex + 14]),
-            fixAxis(frame[startIndex + 16])
-          ],
-          2
-        );
-        //Colar bone line update [6,7] (2*3=6) [3]
-        updateBodyPart(
-          [fixAxis(frame[startIndex + 5]), fixAxis(frame[startIndex + 6])],
-          3
-        );
-        //Hip line update [12,13] (2*3=6) [4]
-        updateBodyPart(
-          [fixAxis(frame[startIndex + 11]), fixAxis(frame[startIndex + 12])],
-          4
-        );
-
-        scene.add(actor);
-        currentFrame++;
-      }
-      setTimeout(newFrame, 1000 / fps);
-      //console.log(actor)
-    }
-    function updateBodyPart(tempP, part) {
-      let p = 0;
-      //(part == 0)?console.log(tempP[4].x):null;
-      //console.log('Update part', part, 'with', tempP.length, 'points', tempP)
-      for (let i = 0; i < tempP.length / 3; i++) {
-        actor.children[part].geometry.attributes.position.array[p] = tempP[i].x;
-        actor.children[part].geometry.attributes.color.array[p++] =
-          1 * tempP[i].p;
-        actor.children[part].geometry.attributes.position.array[p] = tempP[i].y;
-        actor.children[part].geometry.attributes.color.array[p++] =
-          1 - 1 * tempP[i].p;
-        actor.children[part].geometry.attributes.position.array[p++] =
-          tempP[i].z;
-      }
-      actor.children[part].geometry.attributes.position.needsUpdate = true;
-      actor.children[part].geometry.attributes.color.needsUpdate = true;
-      actor.children[part].geometry.verticesNeedUpdate = true;
-    }
 
     function scale(number, inMin, inMax, outMin, outMax) {
       return ((number - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
@@ -554,56 +465,10 @@ export class ViewerComponent implements OnInit {
         return current;
       }
     }
-
-    function initGui() {
-      gui = new GUI();
-
-      const param = {
-        FPS: 2,
-        Frame: currentFrame,
-        Playing: true,
-        Paused: false,
-        Factor: factor,
-        camRX: frameConfig.camRX,
-        camY: frameConfig.camY,
-        minP: frameConfig.minP,
-        maxM: frameConfig.maxMovement
-      };
-      gui
-        .add(param, 'Frame', 1, maxFrames)
-        .step(1)
-        .onChange(function(val) {
-          if (paused) {
-            currentFrame = val;
-          }
-        });
-      gui.add(param, 'FPS', 1, 15).onChange(function(val) {
-        fps = val;
-      });
-      gui.add(param, 'camRX', -180, 180).onChange(function(val) {
-        frameConfig.camRX = val;
-      });
-      gui.add(param, 'camY', -800, 800).onChange(function(val) {
-        frameConfig.camY = val;
-      });
-      gui.add(param, 'minP', 0, 1).onChange(function(val) {
-        frameConfig.minP = val;
-      });
-      gui.add(param, 'maxM', 0, 100).onChange(function(val) {
-        frameConfig.maxMovement = val;
-      });
-      gui.add(param, 'Factor', 0, 1000).onChange(function(val) {
-        factor = val;
-      });
-
-      gui.add(param, 'Playing').onChange(function(val) {
-        play = val;
-      });
-      gui.add(param, 'Paused').onChange(function(val) {
-        paused = val;
-      });
-    }
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+    console.log('stop', this.requestId);
+    cancelAnimationFrame(this.requestId);
+  }
 }

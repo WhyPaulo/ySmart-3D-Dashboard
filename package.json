@@ -15,6 +15,7 @@
     "@angular/router": "^12.1.0",
     "@ng-bootstrap/ng-bootstrap": "next",
     "@popperjs/core": "^2.9.2",
+    "@types/three": "^0.130.1",
     "bootstrap": "^5.0.2",
     "camera-controls": "^1.29.1",
     "moment": "^2.29.1",
