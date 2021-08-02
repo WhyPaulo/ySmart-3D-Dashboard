@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { SessionsService } from './sessions.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-all-sessions',
@@ -7,20 +7,25 @@ import { SessionsService } from './sessions.service';
   styleUrls: ['./all-sessions.component.css']
 })
 export class AllSessionsComponent implements OnInit {
-  ngOnInit() {}
-
+  
   sessions: any;
-  constructor(private sess: SessionsService) {
-    sess.getData().subscribe((data: any) => {
-      this.sessions = data;
-      this.sessions.forEach(session => {
-        session.startDate = new Date(session.startTime * 1000).toLocaleString(
-          'pt-PT'
-        );
-        session.endDate = new Date(session.endTime * 1000).toLocaleString(
-          'pt-PT'
-        );
+  
+  constructor(private http: HttpClient) {}
+
+  ngOnInit() {
+    this.http
+      .get('https://ysmartdata.whymob.dev/get/sessions')
+      .subscribe(Response => {
+        // If response comes
+        this.sessions = Response;
+        this.sessions.forEach(session => {
+          session.startDate = new Date(session.startTime * 1000).toLocaleString(
+            'pt-PT'
+          );
+          session.endDate = new Date(session.endTime * 1000).toLocaleString(
+            'pt-PT'
+          );
+        });
       });
-    });
   }
 }

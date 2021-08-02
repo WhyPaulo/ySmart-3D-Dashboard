@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SessionService } from './session.service';
+import { HttpClient } from '@angular/common/http';
 import * as THREE from 'three';
 
 import CameraControls from 'camera-controls';
@@ -55,11 +55,16 @@ export class ViewerComponent implements OnInit {
 
   constructor(
     private _Activatedroute: ActivatedRoute,
-    private sess: SessionService
+    private http: HttpClient
   ) {
     this.id = this._Activatedroute.snapshot.paramMap.get('id');
     this.sessionDate = new Date(this.id * 1000).toLocaleString('pt-PT');
-    sess.getData(this.id).subscribe((data: any) => {
+    
+  }
+  ngOnInit() {
+    this.http
+    .get('https://ysmartdata.whymob.dev/get/actor-frames/' + this.id)
+    .subscribe((data: any) => {
       this.totalFrames = data.actores[0].length / 18;
       this.sessionDuration = data.duration;
       this.data.actores = data.actores;
@@ -68,12 +73,10 @@ export class ViewerComponent implements OnInit {
       this.dataLoaded = true;
     });
   }
-  ngOnInit() {}
 
   buildViewer() {
     this.timestamp = '0';
     let comp = this;
-    // Find the latest version by visiting https://unpkg.com/three.
     let camera,
       scene,
       renderer,

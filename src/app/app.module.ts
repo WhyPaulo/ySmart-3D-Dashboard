@@ -6,16 +6,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { APP_BASE_HREF } from '@angular/common';
 
 import { AppComponent } from './app.component';
-import { HelloComponent } from './hello.component';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { GetSmallSessionsService } from './small-sessions/get-small-sessions.service';
 import { SmallSessionsComponent } from './small-sessions/small-sessions.component';
 import { ViewerComponent } from './viewer/viewer.component';
 import { AllSessionsComponent } from './all-sessions/all-sessions.component';
-import { SessionsService } from './all-sessions/sessions.service';
 import { SessionDetailsComponent } from './session-details/session-details.component';
-import { SessionService } from './viewer/session.service';
 import { ProcessedSessionsComponent } from './processed-sessions/processed-sessions.component';
 
 const routes: Routes = [
@@ -36,7 +32,6 @@ const routes: Routes = [
   exports: [RouterModule],
   declarations: [
     AppComponent,
-    HelloComponent,
     SmallSessionsComponent,
     ViewerComponent,
     AllSessionsComponent,
@@ -45,9 +40,6 @@ const routes: Routes = [
   ],
   bootstrap: [AppComponent],
   providers: [
-    GetSmallSessionsService,
-    SessionsService,
-    SessionService,
     {
       provide: APP_BASE_HREF,
       useValue: '/' + (window.location.pathname.split('/')[1] || '')

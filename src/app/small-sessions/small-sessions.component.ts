@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { GetSmallSessionsService } from './get-small-sessions.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-small-sessions',
@@ -9,11 +9,23 @@ import { GetSmallSessionsService } from './get-small-sessions.service';
 export class SmallSessionsComponent implements OnInit {
   limit = 10;
   sessions: any;
-  constructor(private sess: GetSmallSessionsService) {
-    sess.getData(this.limit).subscribe((data: any) => {
-      this.sessions = data;
-    });
-  }
+  
+  constructor(private http: HttpClient) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.http
+      .get('https://ysmartdata.whymob.dev/get/small-sessions/'+this.limit)
+      .subscribe(Response => {
+        // If response comes
+        this.sessions = Response;
+        this.sessions.forEach(session => {
+          session.startDate = new Date(session.startTime * 1000).toLocaleString(
+            'pt-PT'
+          );
+          session.endDate = new Date(session.endTime * 1000).toLocaleString(
+            'pt-PT'
+          );
+        });
+      });
+  }
 }
