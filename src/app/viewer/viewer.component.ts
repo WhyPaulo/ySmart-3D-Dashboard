@@ -1,4 +1,5 @@
 import { Component, OnInit, HostListener } from '@angular/core';
+import {ThemePalette} from '@angular/material/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import * as THREE from 'three';
@@ -12,13 +13,17 @@ CameraControls.install({ THREE: THREE });
   styleUrls: ['./viewer.component.css']
 })
 export class ViewerComponent implements OnInit {
-  public id;
-  public sessionDate;
-  public sessionDuration;
-  public totalFrames;
+  public id: any;
+  public sessionDate: string;
+  public sessionDuration: any;
+  public totalFrames: number;
   public showSpinner = true;
-  public timestamp = '00:00:00';
-  public requestId;
+  public timestamp = '0';
+  public frameTimestamp = '0';
+  public requestId: number;
+  public paused = false;
+  public smoothing = true;
+  public statusMsg = '';
 
   private data = {
     frameConfig: {
@@ -75,7 +80,6 @@ export class ViewerComponent implements OnInit {
   }
 
   buildViewer() {
-    this.timestamp = '0';
     let comp = this;
     let camera,
       scene,
@@ -164,29 +168,22 @@ export class ViewerComponent implements OnInit {
       sessao.add(cama);
 
       //DISPENSADOR
+      const dispensador1 = new THREE.Group();
+      dispensador1.name = 'dispensador1';
       const dispensadorMat = new THREE.MeshPhongMaterial({ color: 0xffff00 });
 
       const dispensador1Geo = new THREE.BoxGeometry(25, 50, 25);
       const dispensador2Geo = new THREE.BoxGeometry(25, 50, 25);
 
-      const dispensador1 = new THREE.Mesh(dispensador1Geo, dispensadorMat);
+      const dispensador1mesh = new THREE.Mesh(dispensador1Geo, dispensadorMat);
       let fixedDispensadorPoint = fixAxis(dispensadores[0]);
       dispensador1.position.set(
         fixedDispensadorPoint.x,
         fixedDispensadorPoint.y,
         fixedDispensadorPoint.z
       );
-
-      const dispensador2 = new THREE.Mesh(dispensador2Geo, dispensadorMat);
-      fixedDispensadorPoint = fixAxis([903.75, 186.5, 3.917]);
-      dispensador2.position.set(
-        fixedDispensadorPoint.x,
-        fixedDispensadorPoint.y,
-        fixedDispensadorPoint.z
-      );
-
+      dispensador1.add(dispensador1mesh);
       sessao.add(dispensador1);
-      //scene.add( dispensador2 )
 
       //ADD Detected floor
       //create a blue LineBasicMaterial
@@ -302,6 +299,8 @@ export class ViewerComponent implements OnInit {
       sessao.rotation.x = frameConfig.camRX * (Math.PI / 180);
       sessao.getObjectByName('cama').rotation.x =
         frameConfig.camRX * -1 * (Math.PI / 180);
+      sessao.getObjectByName('dispensador1').rotation.x =
+        frameConfig.camRX * -1 * (Math.PI / 180);
 
       sessao.position.z = -frameConfig.camY / 2;
       sessao.position.y = -frameConfig.camY;
@@ -384,11 +383,15 @@ export class ViewerComponent implements OnInit {
             let fixedPoint = { x: 0, y: 0, z: 0, p: 0 };
             let newPoint = { x: 0, y: 0, z: 0, p: 1 };
             //if starting frame skip max velocity check
-            if (startIndex < framePointsCount) {
+            comp.statusMsg = comp.smoothing?'smoothing on':'smoothing off';
+            if (startIndex < framePointsCount || !comp.smoothing) {
               fixedPoint = fixAxis(
                 frame[startIndex + (bodyPointsIndex[i][j] - 1)]
               );
               currentPoints[bodyPointsIndex[i][j] - 1] = fixedPoint;
+            } if(comp.paused){
+              comp.statusMsg = 'limiter drift disabled - ' + comp.statusMsg;
+              fixedPoint = currentPoints[bodyPointsIndex[i][j] - 1];
             } else {
               fixedPoint = fixAxis(
                 frame[startIndex + (bodyPointsIndex[i][j] - 1)]
@@ -432,11 +435,13 @@ export class ViewerComponent implements OnInit {
       }
       sessao.add(actor);
       //scene.add(sessao)
-      if (!paused) {
+      if (!comp.paused) {
         currentFrame++;
+      } else {
+        comp.statusMsg = 'paused - ' + comp.statusMsg;
       }
       if (document.getElementById('viewer')) {
-        document.getElementById('timestamp').innerText = (
+        comp.timestamp = (
           currentFrame %
           (frame.length / framePointsCount)
         ).toString();

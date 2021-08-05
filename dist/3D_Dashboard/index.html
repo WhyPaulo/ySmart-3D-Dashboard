@@ -1,10 +1,18 @@
 <html>
   <head>
     <title>Angular App</title>
-  <link rel="stylesheet" href="styles.css"></head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="styles.css"></head>
   <body>
-  <div class="container-md">
-  <my-app>loading</my-app>
-</div>
+    <div class="app container-md pt-3">
+      <div class="position-absolute top-0 bottom-0 start-0 end-0">
+        <div class="spinner-wrapper pt-5">
+          <img class="m-auto d-block mt-5" style="width:60px" src="https://whymob.dev/ysmart/loading.gif">
+          <span class="m-auto d-block mt-2 w-50 text-center text-secondary">Loading</span>
+        </div>
+      </div>
+    </div>
   <script src="runtime-es2015.js" type="module"></script><script src="runtime-es5.js" nomodule defer></script><script src="polyfills-es5.js" nomodule defer></script><script src="polyfills-es2015.js" type="module"></script><script src="vendor-es2015.js" type="module"></script><script src="vendor-es5.js" nomodule defer></script><script src="main-es2015.js" type="module"></script><script src="main-es5.js" nomodule defer></script></body>
 </html>

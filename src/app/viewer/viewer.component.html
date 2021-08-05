@@ -1,18 +1,54 @@
-<p class="text-center fw-bold text-uppercase">
+<h3 class="text-center fw-bold text-uppercase">
   Sessão {{id}}
-</p>
+</h3>
 <div class="position-relative">
   <div class="viewer-wrapper" [class.blurred]="showSpinner">
-    <div id="viewer">
-      <span id="timestamp"></span>
+    <div id="viewer" class="position-relative">
+      <span class="d-block end-0 pe-3 position-absolute pt-2 text-end top-0">{{frameTimestamp}}</span>
+      <span class="d-block start-0 ps-3 position-absolute pt-2 text-start top-0">{{timestamp}}</span>
+      <span class="bottom-0 d-block end-0 pb-2 pe-3 position-absolute text-end">{{statusMsg}}</span>
     </div>
-    <p class="text-center" *ngIf="!showSpinner">Sessão gravada em {{sessionDate}} com uma duração de {{sessionDuration}} e
-      {{totalFrames}} frames. ({{requestId}})
-    </p>
+    <div class="row" *ngIf="!showSpinner">
+      <div class="col-md-4 col-sm-6 pt-4">
+          <h4>Dados da sessão</h4> 
+          <div>Sessão gravada em:</div>
+          <div class="fw-bolder">{{sessionDate}} </div>
+          <div>com uma duração de:</div>
+          <div><span class="fw-bolder">{{sessionDuration}}</span> e <span class="fw-bolder">{{totalFrames}}</span> frames.</div>
+          <div>(Animation frame ID:<span class="fw-bolder">{{requestId}}</span>)</div>
+      </div>
+      <div class="col-md-4 col-sm-6 pt-4">
+          <h5>Dados de oportunidades</h5> 
+          <p>Informação a adiccionar.</p> 
+      </div>
+      <div class="col-md-4 col-sm-12 pt-4">
+          <h5>Visualizador</h5>
+          <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" [(ngModel)]="smoothing"
+              [ngModelOptions]="{standalone: true}">
+              <label class="form-check-label" for="flexSwitchCheckDefault">Suavizador de pontos (corpo)</label>
+          </div>                             
+          <div class="mt-2">
+              <div class="btn-group me-2" role="group" aria-label="First group">
+                  <button type="button" class="btn btn-outline-secondary">
+                      <i class="bi bi-skip-backward-fill"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="paused = !paused">
+                      <i class="bi bi-play-fill" *ngIf="paused"></i>
+                      <i class="bi bi-pause-fill" *ngIf="!paused"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary">
+                      <i class="bi bi-skip-forward-fill"></i>
+                  </button>
+              </div>
+          </div>
+      </div>
+    </div>
   </div>
-  <div class="overlay position-absolute top-0 end-0" *ngIf="showSpinner">
+  <div class="position-absolute top-0 bottom-0 start-0 end-0" *ngIf="showSpinner">
     <div class="spinner-wrapper pt-5">
-      <img class="m-auto d-block mt-5" style='width:60px' src="https://whymob.dev/ysmart/loading.gif">
+      <img class="m-auto d-block mt-5" style="width:60px" src="https://whymob.dev/ysmart/loading.gif">
+      <span class="m-auto d-block mt-2 w-50 text-center text-secondary">Loading</span>
     </div>
   </div>
 </div>

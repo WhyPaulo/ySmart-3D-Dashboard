@@ -74,30 +74,35 @@
       /* harmony import */
 
 
-      var _sessions_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-      /*! ./sessions.service */
-      4659);
+      var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+      /*! @angular/common/http */
+      1841);
 
       var _AllSessionsComponent = /*#__PURE__*/function () {
-        function AllSessionsComponent(sess) {
-          var _this = this;
-
+        function AllSessionsComponent(http) {
           _classCallCheck(this, AllSessionsComponent);
 
-          this.sess = sess;
-          sess.getData().subscribe(function (data) {
-            _this.sessions = data;
-
-            _this.sessions.forEach(function (session) {
-              session.startDate = new Date(session.startTime * 1000).toLocaleString('pt-PT');
-              session.endDate = new Date(session.endTime * 1000).toLocaleString('pt-PT');
-            });
-          });
+          this.http = http;
+          this.showSpinner = true;
         }
 
         _createClass(AllSessionsComponent, [{
           key: "ngOnInit",
-          value: function ngOnInit() {}
+          value: function ngOnInit() {
+            var _this = this;
+
+            this.http.get('https://ysmartdata.whymob.dev/get/sessions').subscribe(function (Response) {
+              // If response comes
+              _this.sessions = Response;
+
+              _this.sessions.forEach(function (session) {
+                session.startDate = new Date(session.startTime * 1000).toLocaleString('pt-PT');
+                session.endDate = new Date(session.endTime * 1000).toLocaleString('pt-PT');
+              });
+
+              _this.showSpinner = false;
+            });
+          }
         }]);
 
         return AllSessionsComponent;
@@ -105,7 +110,7 @@
 
       _AllSessionsComponent.ctorParameters = function () {
         return [{
-          type: _sessions_service__WEBPACK_IMPORTED_MODULE_2__.SessionsService
+          type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__.HttpClient
         }];
       };
 
@@ -114,71 +119,6 @@
         template: _raw_loader_all_sessions_component_html__WEBPACK_IMPORTED_MODULE_0__["default"],
         styles: [_all_sessions_component_css__WEBPACK_IMPORTED_MODULE_1__["default"]]
       })], _AllSessionsComponent);
-      /***/
-    },
-
-    /***/
-    4659: function _(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-      "use strict";
-
-      __webpack_require__.r(__webpack_exports__);
-      /* harmony export */
-
-
-      __webpack_require__.d(__webpack_exports__, {
-        /* harmony export */
-        "SessionsService": function SessionsService() {
-          return (
-            /* binding */
-            _SessionsService
-          );
-        }
-        /* harmony export */
-
-      });
-      /* harmony import */
-
-
-      var tslib__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-      /*! tslib */
-      4762);
-      /* harmony import */
-
-
-      var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-      /*! @angular/core */
-      7716);
-      /* harmony import */
-
-
-      var _angular_common_http__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-      /*! @angular/common/http */
-      1841);
-
-      var _SessionsService = /*#__PURE__*/function () {
-        function SessionsService(http) {
-          _classCallCheck(this, SessionsService);
-
-          this.http = http;
-        }
-
-        _createClass(SessionsService, [{
-          key: "getData",
-          value: function getData() {
-            return this.http.get('https://ysmartdata.whymob.dev/get/sessions');
-          }
-        }]);
-
-        return SessionsService;
-      }();
-
-      _SessionsService.ctorParameters = function () {
-        return [{
-          type: _angular_common_http__WEBPACK_IMPORTED_MODULE_0__.HttpClient
-        }];
-      };
-
-      _SessionsService = (0, tslib__WEBPACK_IMPORTED_MODULE_1__.__decorate)([(0, _angular_core__WEBPACK_IMPORTED_MODULE_2__.Injectable)()], _SessionsService);
       /***/
     },
 
@@ -233,7 +173,7 @@
       };
 
       _AppComponent = (0, tslib__WEBPACK_IMPORTED_MODULE_2__.__decorate)([(0, _angular_core__WEBPACK_IMPORTED_MODULE_3__.Component)({
-        selector: 'my-app',
+        selector: '.app',
         template: _raw_loader_app_component_html__WEBPACK_IMPORTED_MODULE_0__["default"],
         styles: [_app_component_css__WEBPACK_IMPORTED_MODULE_1__["default"]]
       })], _AppComponent);
@@ -262,43 +202,49 @@
       /* harmony import */
 
 
-      var tslib__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+      var tslib__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
       /*! tslib */
       4762);
       /* harmony import */
 
 
-      var _angular_core__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+      var _angular_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
       /*! @angular/core */
       7716);
       /* harmony import */
 
 
-      var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
+      var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
       /*! @angular/platform-browser */
       9075);
       /* harmony import */
 
 
-      var _angular_forms__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
+      var _angular_forms__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
       /*! @angular/forms */
       3679);
       /* harmony import */
 
 
-      var _angular_router__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
+      var _angular_material_slide_toggle__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+      /*! @angular/material/slide-toggle */
+      5396);
+      /* harmony import */
+
+
+      var _angular_router__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
       /*! @angular/router */
       9895);
       /* harmony import */
 
 
-      var _angular_common_http__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+      var _angular_common_http__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
       /*! @angular/common/http */
       1841);
       /* harmony import */
 
 
-      var _angular_common__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
+      var _angular_common__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
       /*! @angular/common */
       8583);
       /* harmony import */
@@ -310,147 +256,77 @@
       /* harmony import */
 
 
-      var _hello_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-      /*! ./hello.component */
-      8324);
-      /* harmony import */
-
-
-      var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
+      var _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
       /*! @ng-bootstrap/ng-bootstrap */
       2664);
       /* harmony import */
 
 
-      var _small_sessions_get_small_sessions_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-      /*! ./small-sessions/get-small-sessions.service */
-      4507);
-      /* harmony import */
-
-
-      var _small_sessions_small_sessions_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+      var _small_sessions_small_sessions_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
       /*! ./small-sessions/small-sessions.component */
       1329);
       /* harmony import */
 
 
-      var _viewer_viewer_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+      var _viewer_viewer_component__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
       /*! ./viewer/viewer.component */
       7101);
       /* harmony import */
 
 
-      var _all_sessions_all_sessions_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+      var _all_sessions_all_sessions_component__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
       /*! ./all-sessions/all-sessions.component */
       5604);
       /* harmony import */
 
 
-      var _all_sessions_sessions_service__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-      /*! ./all-sessions/sessions.service */
-      4659);
-      /* harmony import */
-
-
-      var _session_details_session_details_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+      var _session_details_session_details_component__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
       /*! ./session-details/session-details.component */
       4121);
       /* harmony import */
 
 
-      var _viewer_session_service__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-      /*! ./viewer/session.service */
-      909);
+      var _processed_sessions_processed_sessions_component__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+      /*! ./processed-sessions/processed-sessions.component */
+      6458);
       /* harmony import */
 
 
-      var _processed_sessions_processed_sessions_component__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-      /*! ./processed-sessions/processed-sessions.component */
-      6458);
+      var _angular_platform_browser_animations__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+      /*! @angular/platform-browser/animations */
+      5835);
 
       var routes = [{
         path: '',
-        component: _all_sessions_all_sessions_component__WEBPACK_IMPORTED_MODULE_5__.AllSessionsComponent
+        component: _all_sessions_all_sessions_component__WEBPACK_IMPORTED_MODULE_3__.AllSessionsComponent
       }, {
         path: 'small',
-        component: _small_sessions_small_sessions_component__WEBPACK_IMPORTED_MODULE_3__.SmallSessionsComponent
+        component: _small_sessions_small_sessions_component__WEBPACK_IMPORTED_MODULE_1__.SmallSessionsComponent
       }, {
         path: 'processed',
-        component: _processed_sessions_processed_sessions_component__WEBPACK_IMPORTED_MODULE_9__.ProcessedSessionsComponent
+        component: _processed_sessions_processed_sessions_component__WEBPACK_IMPORTED_MODULE_5__.ProcessedSessionsComponent
       }, {
         path: 'view/:id',
-        component: _viewer_viewer_component__WEBPACK_IMPORTED_MODULE_4__.ViewerComponent
+        component: _viewer_viewer_component__WEBPACK_IMPORTED_MODULE_2__.ViewerComponent
       }];
 
       var _AppModule = function AppModule() {
         _classCallCheck(this, AppModule);
       };
 
-      _AppModule = (0, tslib__WEBPACK_IMPORTED_MODULE_10__.__decorate)([(0, _angular_core__WEBPACK_IMPORTED_MODULE_11__.NgModule)({
-        imports: [_angular_platform_browser__WEBPACK_IMPORTED_MODULE_12__.BrowserModule, _angular_forms__WEBPACK_IMPORTED_MODULE_13__.FormsModule, _angular_common_http__WEBPACK_IMPORTED_MODULE_14__.HttpClientModule, _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_15__.NgbModule, _angular_router__WEBPACK_IMPORTED_MODULE_16__.RouterModule.forRoot(routes)],
-        exports: [_angular_router__WEBPACK_IMPORTED_MODULE_16__.RouterModule],
-        declarations: [_app_component__WEBPACK_IMPORTED_MODULE_0__.AppComponent, _hello_component__WEBPACK_IMPORTED_MODULE_1__.HelloComponent, _small_sessions_small_sessions_component__WEBPACK_IMPORTED_MODULE_3__.SmallSessionsComponent, _viewer_viewer_component__WEBPACK_IMPORTED_MODULE_4__.ViewerComponent, _all_sessions_all_sessions_component__WEBPACK_IMPORTED_MODULE_5__.AllSessionsComponent, _session_details_session_details_component__WEBPACK_IMPORTED_MODULE_7__.SessionDetailsComponent, _processed_sessions_processed_sessions_component__WEBPACK_IMPORTED_MODULE_9__.ProcessedSessionsComponent],
+      _AppModule = (0, tslib__WEBPACK_IMPORTED_MODULE_6__.__decorate)([(0, _angular_core__WEBPACK_IMPORTED_MODULE_7__.NgModule)({
+        imports: [_angular_platform_browser__WEBPACK_IMPORTED_MODULE_8__.BrowserModule, _angular_forms__WEBPACK_IMPORTED_MODULE_9__.FormsModule, _angular_material_slide_toggle__WEBPACK_IMPORTED_MODULE_10__.MatSlideToggleModule, _angular_common_http__WEBPACK_IMPORTED_MODULE_11__.HttpClientModule, _ng_bootstrap_ng_bootstrap__WEBPACK_IMPORTED_MODULE_12__.NgbModule, _angular_router__WEBPACK_IMPORTED_MODULE_13__.RouterModule.forRoot(routes, {
+          useHash: true
+        }), _angular_platform_browser_animations__WEBPACK_IMPORTED_MODULE_14__.BrowserAnimationsModule],
+        exports: [_angular_router__WEBPACK_IMPORTED_MODULE_13__.RouterModule],
+        declarations: [_app_component__WEBPACK_IMPORTED_MODULE_0__.AppComponent, _small_sessions_small_sessions_component__WEBPACK_IMPORTED_MODULE_1__.SmallSessionsComponent, _viewer_viewer_component__WEBPACK_IMPORTED_MODULE_2__.ViewerComponent, _all_sessions_all_sessions_component__WEBPACK_IMPORTED_MODULE_3__.AllSessionsComponent, _session_details_session_details_component__WEBPACK_IMPORTED_MODULE_4__.SessionDetailsComponent, _processed_sessions_processed_sessions_component__WEBPACK_IMPORTED_MODULE_5__.ProcessedSessionsComponent],
         bootstrap: [_app_component__WEBPACK_IMPORTED_MODULE_0__.AppComponent],
-        providers: [_small_sessions_get_small_sessions_service__WEBPACK_IMPORTED_MODULE_2__.GetSmallSessionsService, _all_sessions_sessions_service__WEBPACK_IMPORTED_MODULE_6__.SessionsService, _viewer_session_service__WEBPACK_IMPORTED_MODULE_8__.SessionService, {
-          provide: _angular_common__WEBPACK_IMPORTED_MODULE_17__.APP_BASE_HREF,
-          useValue: '/' + (window.location.pathname.split('/')[1] || '')
+        providers: [{
+          provide: _angular_common__WEBPACK_IMPORTED_MODULE_15__.APP_BASE_HREF,
+          useValue: '/' // + (window.location.pathname.split('/')[1] || '')
+
         }]
       })], _AppModule);
-      /***/
-    },
-
-    /***/
-    8324: function _(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-      "use strict";
-
-      __webpack_require__.r(__webpack_exports__);
-      /* harmony export */
-
-
-      __webpack_require__.d(__webpack_exports__, {
-        /* harmony export */
-        "HelloComponent": function HelloComponent() {
-          return (
-            /* binding */
-            _HelloComponent
-          );
-        }
-        /* harmony export */
-
-      });
-      /* harmony import */
-
-
-      var tslib__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-      /*! tslib */
-      4762);
-      /* harmony import */
-
-
-      var C_Users_Paulo_Fernandes_Desktop_ysmart_3d_dashboard_src_app_hello_component_ts_css_C_Users_Paulo_Fernandes_Desktop_ysmart_3d_dashboard_node_modules_ngtools_webpack_src_inline_data_loader_js_data_aDEgeyBmb250LWZhbWlseTogTGF0bzsgfQ_3D_3D_C_Users_Paulo_Fernandes_Desktop_ysmart_3d_dashboard_src_app_hello_component_ts__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-      /*! ./src/app/hello.component.ts.css!=!./node_modules/@ngtools/webpack/src/inline-data-loader.js?data=aDEgeyBmb250LWZhbWlseTogTGF0bzsgfQ%3D%3D!./src/app/hello.component.ts */
-      5474);
-      /* harmony import */
-
-
-      var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-      /*! @angular/core */
-      7716);
-
-      var _HelloComponent = function HelloComponent() {
-        _classCallCheck(this, HelloComponent);
-      };
-
-      _HelloComponent.propDecorators = {
-        name: [{
-          type: _angular_core__WEBPACK_IMPORTED_MODULE_1__.Input
-        }]
-      };
-      _HelloComponent = (0, tslib__WEBPACK_IMPORTED_MODULE_2__.__decorate)([(0, _angular_core__WEBPACK_IMPORTED_MODULE_1__.Component)({
-        selector: 'hello',
-        template: "<h1>Hello {{name}}!</h1>",
-        styles: [C_Users_Paulo_Fernandes_Desktop_ysmart_3d_dashboard_src_app_hello_component_ts_css_C_Users_Paulo_Fernandes_Desktop_ysmart_3d_dashboard_node_modules_ngtools_webpack_src_inline_data_loader_js_data_aDEgeyBmb250LWZhbWlseTogTGF0bzsgfQ_3D_3D_C_Users_Paulo_Fernandes_Desktop_ysmart_3d_dashboard_src_app_hello_component_ts__WEBPACK_IMPORTED_MODULE_0__["default"]]
-      })], _HelloComponent);
       /***/
     },
 
@@ -632,71 +508,6 @@
     },
 
     /***/
-    4507: function _(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-      "use strict";
-
-      __webpack_require__.r(__webpack_exports__);
-      /* harmony export */
-
-
-      __webpack_require__.d(__webpack_exports__, {
-        /* harmony export */
-        "GetSmallSessionsService": function GetSmallSessionsService() {
-          return (
-            /* binding */
-            _GetSmallSessionsService
-          );
-        }
-        /* harmony export */
-
-      });
-      /* harmony import */
-
-
-      var tslib__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-      /*! tslib */
-      4762);
-      /* harmony import */
-
-
-      var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-      /*! @angular/core */
-      7716);
-      /* harmony import */
-
-
-      var _angular_common_http__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-      /*! @angular/common/http */
-      1841);
-
-      var _GetSmallSessionsService = /*#__PURE__*/function () {
-        function GetSmallSessionsService(http) {
-          _classCallCheck(this, GetSmallSessionsService);
-
-          this.http = http;
-        }
-
-        _createClass(GetSmallSessionsService, [{
-          key: "getData",
-          value: function getData(duration) {
-            return this.http.get('https://ysmartdata.whymob.dev/get/small-sessions/' + duration);
-          }
-        }]);
-
-        return GetSmallSessionsService;
-      }();
-
-      _GetSmallSessionsService.ctorParameters = function () {
-        return [{
-          type: _angular_common_http__WEBPACK_IMPORTED_MODULE_0__.HttpClient
-        }];
-      };
-
-      _GetSmallSessionsService = (0, tslib__WEBPACK_IMPORTED_MODULE_1__.__decorate)([(0, _angular_core__WEBPACK_IMPORTED_MODULE_2__.Injectable)()], _GetSmallSessionsService);
-      /***/
-    },
-
-    /***/
     1329: function _(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
       "use strict";
 
@@ -742,26 +553,33 @@
       /* harmony import */
 
 
-      var _get_small_sessions_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-      /*! ./get-small-sessions.service */
-      4507);
+      var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+      /*! @angular/common/http */
+      1841);
 
       var _SmallSessionsComponent = /*#__PURE__*/function () {
-        function SmallSessionsComponent(sess) {
-          var _this2 = this;
-
+        function SmallSessionsComponent(http) {
           _classCallCheck(this, SmallSessionsComponent);
 
-          this.sess = sess;
+          this.http = http;
           this.limit = 10;
-          sess.getData(this.limit).subscribe(function (data) {
-            _this2.sessions = data;
-          });
         }
 
         _createClass(SmallSessionsComponent, [{
           key: "ngOnInit",
-          value: function ngOnInit() {}
+          value: function ngOnInit() {
+            var _this2 = this;
+
+            this.http.get('https://ysmartdata.whymob.dev/get/small-sessions/' + this.limit).subscribe(function (Response) {
+              // If response comes
+              _this2.sessions = Response;
+
+              _this2.sessions.forEach(function (session) {
+                session.startDate = new Date(session.startTime * 1000).toLocaleString('pt-PT');
+                session.endDate = new Date(session.endTime * 1000).toLocaleString('pt-PT');
+              });
+            });
+          }
         }]);
 
         return SmallSessionsComponent;
@@ -769,7 +587,7 @@
 
       _SmallSessionsComponent.ctorParameters = function () {
         return [{
-          type: _get_small_sessions_service__WEBPACK_IMPORTED_MODULE_2__.GetSmallSessionsService
+          type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__.HttpClient
         }];
       };
 
@@ -778,71 +596,6 @@
         template: _raw_loader_small_sessions_component_html__WEBPACK_IMPORTED_MODULE_0__["default"],
         styles: [_small_sessions_component_css__WEBPACK_IMPORTED_MODULE_1__["default"]]
       })], _SmallSessionsComponent);
-      /***/
-    },
-
-    /***/
-    909: function _(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-      "use strict";
-
-      __webpack_require__.r(__webpack_exports__);
-      /* harmony export */
-
-
-      __webpack_require__.d(__webpack_exports__, {
-        /* harmony export */
-        "SessionService": function SessionService() {
-          return (
-            /* binding */
-            _SessionService
-          );
-        }
-        /* harmony export */
-
-      });
-      /* harmony import */
-
-
-      var tslib__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-      /*! tslib */
-      4762);
-      /* harmony import */
-
-
-      var _angular_core__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-      /*! @angular/core */
-      7716);
-      /* harmony import */
-
-
-      var _angular_common_http__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-      /*! @angular/common/http */
-      1841);
-
-      var _SessionService = /*#__PURE__*/function () {
-        function SessionService(http) {
-          _classCallCheck(this, SessionService);
-
-          this.http = http;
-        }
-
-        _createClass(SessionService, [{
-          key: "getData",
-          value: function getData(id) {
-            return this.http.get('https://ysmartdata.whymob.dev/get/actor-frames/' + id);
-          }
-        }]);
-
-        return SessionService;
-      }();
-
-      _SessionService.ctorParameters = function () {
-        return [{
-          type: _angular_common_http__WEBPACK_IMPORTED_MODULE_0__.HttpClient
-        }];
-      };
-
-      _SessionService = (0, tslib__WEBPACK_IMPORTED_MODULE_1__.__decorate)([(0, _angular_core__WEBPACK_IMPORTED_MODULE_2__.Injectable)()], _SessionService);
       /***/
     },
 
@@ -892,42 +645,44 @@
       /* harmony import */
 
 
-      var _angular_router__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+      var _angular_router__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
       /*! @angular/router */
       9895);
       /* harmony import */
 
 
-      var _session_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-      /*! ./session.service */
-      909);
+      var _angular_common_http__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+      /*! @angular/common/http */
+      1841);
       /* harmony import */
 
 
-      var three__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+      var three__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
       /*! three */
       7758);
       /* harmony import */
 
 
-      var camera_controls__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+      var camera_controls__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
       /*! camera-controls */
       2508);
 
-      camera_controls__WEBPACK_IMPORTED_MODULE_3__["default"].install({
-        THREE: three__WEBPACK_IMPORTED_MODULE_4__
+      camera_controls__WEBPACK_IMPORTED_MODULE_2__["default"].install({
+        THREE: three__WEBPACK_IMPORTED_MODULE_3__
       });
 
       var _ViewerComponent = /*#__PURE__*/function () {
-        function ViewerComponent(_Activatedroute, sess) {
-          var _this3 = this;
-
+        function ViewerComponent(_Activatedroute, http) {
           _classCallCheck(this, ViewerComponent);
 
           this._Activatedroute = _Activatedroute;
-          this.sess = sess;
-          this.dataLoaded = false;
-          this.timestamp = '00:00:00';
+          this.http = http;
+          this.showSpinner = true;
+          this.timestamp = '0';
+          this.frameTimestamp = '0';
+          this.paused = false;
+          this.smoothing = true;
+          this.statusMsg = '';
           this.data = {
             frameConfig: {
               x: 640,
@@ -978,26 +733,27 @@
           };
           this.id = this._Activatedroute.snapshot.paramMap.get('id');
           this.sessionDate = new Date(this.id * 1000).toLocaleString('pt-PT');
-          sess.getData(this.id).subscribe(function (data) {
-            _this3.totalFrames = data.actores[0].length / 18;
-            _this3.sessionDuration = data.duration;
-            _this3.data.actores = data.actores; //this.data.camaPoints = data.camaPoints;
-
-            _this3.buildViewer();
-
-            _this3.dataLoaded = true;
-          });
         }
 
         _createClass(ViewerComponent, [{
           key: "ngOnInit",
-          value: function ngOnInit() {}
+          value: function ngOnInit() {
+            var _this3 = this;
+
+            this.http.get('https://ysmartdata.whymob.dev/get/actor-frames/' + this.id).subscribe(function (data) {
+              _this3.totalFrames = data.actores[0].length / 18;
+              _this3.sessionDuration = data.duration;
+              _this3.data.actores = data.actores; //this.data.camaPoints = data.camaPoints;
+
+              _this3.buildViewer();
+
+              _this3.showSpinner = false;
+            });
+          }
         }, {
           key: "buildViewer",
           value: function buildViewer() {
-            this.timestamp = '0';
-            var comp = this; // Find the latest version by visiting https://unpkg.com/three.
-
+            var comp = this;
             var camera, scene, renderer, actor, sessao, floor, cameraControls, clock, stats, gui;
             var frameConfig, framePointsCount;
             var currentPoints = [];
@@ -1022,85 +778,84 @@
             function init() {
               console.log('Positions using', frameConfig.mode); // Set renderer
 
-              renderer = new three__WEBPACK_IMPORTED_MODULE_4__.WebGLRenderer({
+              renderer = new three__WEBPACK_IMPORTED_MODULE_3__.WebGLRenderer({
                 antialias: true
               });
               renderer.setSize(document.getElementById('viewer').offsetWidth, document.getElementById('viewer').offsetWidth / 2);
               document.getElementById('viewer').appendChild(renderer.domElement); // Set scene
 
-              scene = new three__WEBPACK_IMPORTED_MODULE_4__.Scene();
-              scene.background = new three__WEBPACK_IMPORTED_MODULE_4__.Color(0xeeeeee); // Set floor helper
+              scene = new three__WEBPACK_IMPORTED_MODULE_3__.Scene();
+              scene.background = new three__WEBPACK_IMPORTED_MODULE_3__.Color(0xeeeeee); // Set floor helper
 
-              floor = new three__WEBPACK_IMPORTED_MODULE_4__.GridHelper(frameConfig.x, 10);
+              floor = new three__WEBPACK_IMPORTED_MODULE_3__.GridHelper(frameConfig.x, 10);
               scene.add(floor); // Set Camera
 
-              camera = new three__WEBPACK_IMPORTED_MODULE_4__.PerspectiveCamera(70, 1.5, 1, 2000);
+              camera = new three__WEBPACK_IMPORTED_MODULE_3__.PerspectiveCamera(70, 1.5, 1, 2000);
               camera.up.set(0, 0.5, 0); // Set Camera Controls
 
-              clock = new three__WEBPACK_IMPORTED_MODULE_4__.Clock();
-              cameraControls = new camera_controls__WEBPACK_IMPORTED_MODULE_3__["default"](camera, renderer.domElement);
+              clock = new three__WEBPACK_IMPORTED_MODULE_3__.Clock();
+              cameraControls = new camera_controls__WEBPACK_IMPORTED_MODULE_2__["default"](camera, renderer.domElement);
               cameraControls.setLookAt(0, frameConfig.x / 4, frameConfig.x / 2, 0, 0, 0, true);
-              sessao = new three__WEBPACK_IMPORTED_MODULE_4__.Group();
+              sessao = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
               sessao.name = 'sessao'; //CAMA
 
-              var cama = new three__WEBPACK_IMPORTED_MODULE_4__.Group();
+              var cama = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
               cama.name = 'cama';
               var camaWidth = frameConfig.bedW,
                   camaHeight = frameConfig.bedH,
                   camaDepth = frameConfig.bedD;
-              var camaGeo = new three__WEBPACK_IMPORTED_MODULE_4__.BoxGeometry(camaWidth, camaHeight, camaDepth);
-              var camaMaterial = new three__WEBPACK_IMPORTED_MODULE_4__.MeshPhongMaterial({
+              var camaGeo = new three__WEBPACK_IMPORTED_MODULE_3__.BoxGeometry(camaWidth, camaHeight, camaDepth);
+              var camaMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.MeshPhongMaterial({
                 color: 0x00ff00
               });
-              var camaMesh = new three__WEBPACK_IMPORTED_MODULE_4__.Mesh(camaGeo, camaMaterial);
+              var camaMesh = new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(camaGeo, camaMaterial);
               var camaPoint = fixAxis(camaPoints);
               cama.position.set(camaPoint.x, camaPoint.y, camaPoint.z);
               camaMesh.position.set(0, 0, camaDepth / 2);
               cama.add(camaMesh);
               sessao.add(cama); //DISPENSADOR
 
-              var dispensadorMat = new three__WEBPACK_IMPORTED_MODULE_4__.MeshPhongMaterial({
+              var dispensador1 = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
+              dispensador1.name = 'dispensador1';
+              var dispensadorMat = new three__WEBPACK_IMPORTED_MODULE_3__.MeshPhongMaterial({
                 color: 0xffff00
               });
-              var dispensador1Geo = new three__WEBPACK_IMPORTED_MODULE_4__.BoxGeometry(25, 50, 25);
-              var dispensador2Geo = new three__WEBPACK_IMPORTED_MODULE_4__.BoxGeometry(25, 50, 25);
-              var dispensador1 = new three__WEBPACK_IMPORTED_MODULE_4__.Mesh(dispensador1Geo, dispensadorMat);
+              var dispensador1Geo = new three__WEBPACK_IMPORTED_MODULE_3__.BoxGeometry(25, 50, 25);
+              var dispensador2Geo = new three__WEBPACK_IMPORTED_MODULE_3__.BoxGeometry(25, 50, 25);
+              var dispensador1mesh = new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(dispensador1Geo, dispensadorMat);
               var fixedDispensadorPoint = fixAxis(dispensadores[0]);
               dispensador1.position.set(fixedDispensadorPoint.x, fixedDispensadorPoint.y, fixedDispensadorPoint.z);
-              var dispensador2 = new three__WEBPACK_IMPORTED_MODULE_4__.Mesh(dispensador2Geo, dispensadorMat);
-              fixedDispensadorPoint = fixAxis([903.75, 186.5, 3.917]);
-              dispensador2.position.set(fixedDispensadorPoint.x, fixedDispensadorPoint.y, fixedDispensadorPoint.z);
-              sessao.add(dispensador1); //scene.add( dispensador2 )
-              //ADD Detected floor
+              dispensador1.add(dispensador1mesh);
+              sessao.add(dispensador1); //ADD Detected floor
               //create a blue LineBasicMaterial
 
-              var floorLineineMaterial = new three__WEBPACK_IMPORTED_MODULE_4__.LineBasicMaterial({
+              var floorLineineMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.LineBasicMaterial({
                 color: '#00ff00'
               });
               var floorPoints = [];
 
               for (var i = 0; i < detectedFloor.length; i++) {
                 var fixedFloorPoint = fixAxis(detectedFloor[i]);
-                floorPoints.push(new three__WEBPACK_IMPORTED_MODULE_4__.Vector3(fixedFloorPoint.x, fixedFloorPoint.y, fixedFloorPoint.z));
+                floorPoints.push(new three__WEBPACK_IMPORTED_MODULE_3__.Vector3(fixedFloorPoint.x, fixedFloorPoint.y, fixedFloorPoint.z));
               }
 
-              var floorGeometry = new three__WEBPACK_IMPORTED_MODULE_4__.BufferGeometry().setFromPoints(floorPoints);
-              var baseFloor = new three__WEBPACK_IMPORTED_MODULE_4__.Line(floorGeometry, floorLineineMaterial); //sessao.add(baseFloor);
+              var floorGeometry = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry().setFromPoints(floorPoints);
+              var baseFloor = new three__WEBPACK_IMPORTED_MODULE_3__.Line(floorGeometry, floorLineineMaterial); //sessao.add(baseFloor);
               //Create actor group for animation
 
-              actor = new three__WEBPACK_IMPORTED_MODULE_4__.Group();
+              actor = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
               actor.name = 'actor';
               sessao.add(actor);
               scene.add(sessao);
               newFrame2(); //lights
 
-              var dirLight1 = new three__WEBPACK_IMPORTED_MODULE_4__.DirectionalLight(0xffffff);
+              var dirLight1 = new three__WEBPACK_IMPORTED_MODULE_3__.DirectionalLight(0xffffff);
               dirLight1.position.set(1, 1, 1);
               scene.add(dirLight1);
-              var dirLight2 = new three__WEBPACK_IMPORTED_MODULE_4__.DirectionalLight(0x002288);
+              var dirLight2 = new three__WEBPACK_IMPORTED_MODULE_3__.DirectionalLight(0x002288);
               dirLight2.position.set(-1, -1, -1);
               scene.add(dirLight2);
-              var ambientLight = new three__WEBPACK_IMPORTED_MODULE_4__.AmbientLight(0x222222);
+              var ambientLight = new three__WEBPACK_IMPORTED_MODULE_3__.AmbientLight(0x222222);
               scene.add(ambientLight); //
 
               window.removeEventListener('resize', onWindowResize);
@@ -1167,6 +922,7 @@
 
               sessao.rotation.x = frameConfig.camRX * (Math.PI / 180);
               sessao.getObjectByName('cama').rotation.x = frameConfig.camRX * -1 * (Math.PI / 180);
+              sessao.getObjectByName('dispensador1').rotation.x = frameConfig.camRX * -1 * (Math.PI / 180);
               sessao.position.z = -frameConfig.camY / 2;
               sessao.position.y = -frameConfig.camY;
               render();
@@ -1186,18 +942,18 @@
               //rebuild actor
               //create a blue LineBasicMaterial
 
-              var lineMaterial = new three__WEBPACK_IMPORTED_MODULE_4__.LineBasicMaterial({
-                vertexColors: three__WEBPACK_IMPORTED_MODULE_4__.VertexColors,
+              var lineMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.LineBasicMaterial({
+                vertexColors: three__WEBPACK_IMPORTED_MODULE_3__.VertexColors,
                 linewidth: 40 // lineWidth not universally supported works with safari
 
               });
-              var pointMaterial = new three__WEBPACK_IMPORTED_MODULE_4__.PointsMaterial({
+              var pointMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.PointsMaterial({
                 size: 2,
-                vertexColors: three__WEBPACK_IMPORTED_MODULE_4__.VertexColors
+                vertexColors: three__WEBPACK_IMPORTED_MODULE_3__.VertexColors
               });
               var pointColors = [];
               var points = [];
-              actor = new three__WEBPACK_IMPORTED_MODULE_4__.Group();
+              actor = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
               actor.name = 'actor';
 
               for (var i = 0; i < 5; i++) {
@@ -1206,10 +962,10 @@
                 points.push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
               }
 
-              var headGeometry = new three__WEBPACK_IMPORTED_MODULE_4__.BufferGeometry();
-              headGeometry.setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_4__.Float32BufferAttribute(points, 3));
-              headGeometry.setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_4__.Float32BufferAttribute(pointColors, 3));
-              var head = new three__WEBPACK_IMPORTED_MODULE_4__.Points(headGeometry, pointMaterial);
+              var headGeometry = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry();
+              headGeometry.setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(points, 3));
+              headGeometry.setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(pointColors, 3));
+              var head = new three__WEBPACK_IMPORTED_MODULE_3__.Points(headGeometry, pointMaterial);
               actor.add(head);
               var bodyPointsIndex = [[10, 8, 6, 12, 14, 16], [11, 9, 7, 13, 15, 17], [6, 7], [12, 13]];
               var linePoints = [];
@@ -1221,7 +977,7 @@
               for (var _i = 0; _i < bodyPointsIndex.length; _i++) {
                 linePoints[_i] = [];
                 lineColors[_i] = [];
-                lineGeometries[_i] = new three__WEBPACK_IMPORTED_MODULE_4__.BufferGeometry().setFromPoints(linePoints[_i]);
+                lineGeometries[_i] = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry().setFromPoints(linePoints[_i]);
 
                 for (var j = 0; j < bodyPointsIndex[_i].length; j++) {
                   //Skip point if it's above threshold
@@ -1239,9 +995,16 @@
                       p: 1
                     }; //if starting frame skip max velocity check
 
-                    if (startIndex < framePointsCount) {
+                    comp.statusMsg = comp.smoothing ? 'smoothing on' : 'smoothing off';
+
+                    if (startIndex < framePointsCount || !comp.smoothing) {
                       _fixedPoint = fixAxis(frame[startIndex + (bodyPointsIndex[_i][j] - 1)]);
                       currentPoints[bodyPointsIndex[_i][j] - 1] = _fixedPoint;
+                    }
+
+                    if (comp.paused) {
+                      comp.statusMsg = 'limiter drift disabled - ' + comp.statusMsg;
+                      _fixedPoint = currentPoints[bodyPointsIndex[_i][j] - 1];
                     } else {
                       _fixedPoint = fixAxis(frame[startIndex + (bodyPointsIndex[_i][j] - 1)]);
                       currentPoint = currentPoints[bodyPointsIndex[_i][j] - 1];
@@ -1259,11 +1022,11 @@
                   }
                 }
 
-                lineGeometries[_i].setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_4__.Float32BufferAttribute(linePoints[_i], 3));
+                lineGeometries[_i].setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(linePoints[_i], 3));
 
-                lineGeometries[_i].setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_4__.Float32BufferAttribute(lineColors[_i], 3));
+                lineGeometries[_i].setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(lineColors[_i], 3));
 
-                lines[_i] = new three__WEBPACK_IMPORTED_MODULE_4__.Line(lineGeometries[_i], lineMaterial);
+                lines[_i] = new three__WEBPACK_IMPORTED_MODULE_3__.Line(lineGeometries[_i], lineMaterial);
 
                 lines[_i].computeLineDistances();
 
@@ -1272,12 +1035,14 @@
 
               sessao.add(actor); //scene.add(sessao)
 
-              if (!paused) {
+              if (!comp.paused) {
                 currentFrame++;
+              } else {
+                comp.statusMsg = 'paused - ' + comp.statusMsg;
               }
 
               if (document.getElementById('viewer')) {
-                document.getElementById('timestamp').innerText = (currentFrame % (frame.length / framePointsCount)).toString();
+                comp.timestamp = (currentFrame % (frame.length / framePointsCount)).toString();
                 setTimeout(newFrame2, 1000 / fps);
               } else {
                 console.log('newframe stopped');
@@ -1319,9 +1084,9 @@
 
       _ViewerComponent.ctorParameters = function () {
         return [{
-          type: _angular_router__WEBPACK_IMPORTED_MODULE_5__.ActivatedRoute
+          type: _angular_router__WEBPACK_IMPORTED_MODULE_4__.ActivatedRoute
         }, {
-          type: _session_service__WEBPACK_IMPORTED_MODULE_2__.SessionService
+          type: _angular_common_http__WEBPACK_IMPORTED_MODULE_5__.HttpClient
         }];
       };
 
@@ -1457,18 +1222,6 @@
     },
 
     /***/
-    5474: function _(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
-      "use strict";
-
-      __webpack_require__.r(__webpack_exports__);
-      /* harmony default export */
-
-
-      __webpack_exports__["default"] = "h1 { font-family: Lato; }\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImhlbGxvLmNvbXBvbmVudC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSxLQUFLLGlCQUFpQixFQUFFIiwiZmlsZSI6ImhlbGxvLmNvbXBvbmVudC50cyIsInNvdXJjZXNDb250ZW50IjpbImgxIHsgZm9udC1mYW1pbHk6IExhdG87IH0iXX0= */";
-      /***/
-    },
-
-    /***/
     8592: function _(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
       "use strict";
 
@@ -1476,7 +1229,7 @@
       /* harmony default export */
 
 
-      __webpack_exports__["default"] = ".isDisabled {\r\n  cursor: not-allowed;\r\n  opacity: 0.5;\r\n}\r\n.isDisabled > a {\r\n  color: currentColor;\r\n  display: inline-block; /* For IE11/ MS Edge bug */\r\n  pointer-events: none;\r\n  text-decoration: none;\r\n}\r\n\r\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImFsbC1zZXNzaW9ucy5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0UsbUJBQW1CO0VBQ25CLFlBQVk7QUFDZDtBQUNBO0VBQ0UsbUJBQW1CO0VBQ25CLHFCQUFxQixFQUFFLDBCQUEwQjtFQUNqRCxvQkFBb0I7RUFDcEIscUJBQXFCO0FBQ3ZCIiwiZmlsZSI6ImFsbC1zZXNzaW9ucy5jb21wb25lbnQuY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLmlzRGlzYWJsZWQge1xyXG4gIGN1cnNvcjogbm90LWFsbG93ZWQ7XHJcbiAgb3BhY2l0eTogMC41O1xyXG59XHJcbi5pc0Rpc2FibGVkID4gYSB7XHJcbiAgY29sb3I6IGN1cnJlbnRDb2xvcjtcclxuICBkaXNwbGF5OiBpbmxpbmUtYmxvY2s7IC8qIEZvciBJRTExLyBNUyBFZGdlIGJ1ZyAqL1xyXG4gIHBvaW50ZXItZXZlbnRzOiBub25lO1xyXG4gIHRleHQtZGVjb3JhdGlvbjogbm9uZTtcclxufVxyXG4iXX0= */";
+      __webpack_exports__["default"] = ".isDisabled {\r\n  cursor: not-allowed;\r\n  opacity: 0.5;\r\n}\r\n.isDisabled > a {\r\n  color: currentColor;\r\n  display: inline-block; /* For IE11/ MS Edge bug */\r\n  pointer-events: none;\r\n  text-decoration: none;\r\n}\r\n.overlay {\r\n  position: absolute;\r\n  z-index: 1002;\r\n  background-color: rgba(255, 255, 255, 0.5);\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n.blurred {\r\n  filter: blur(2px);\r\n}\r\n\r\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImFsbC1zZXNzaW9ucy5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0UsbUJBQW1CO0VBQ25CLFlBQVk7QUFDZDtBQUNBO0VBQ0UsbUJBQW1CO0VBQ25CLHFCQUFxQixFQUFFLDBCQUEwQjtFQUNqRCxvQkFBb0I7RUFDcEIscUJBQXFCO0FBQ3ZCO0FBQ0E7RUFDRSxrQkFBa0I7RUFDbEIsYUFBYTtFQUNiLDBDQUEwQztFQUMxQyxXQUFXO0VBQ1gsWUFBWTtBQUNkO0FBQ0E7RUFDRSxpQkFBaUI7QUFDbkIiLCJmaWxlIjoiYWxsLXNlc3Npb25zLmNvbXBvbmVudC5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyIuaXNEaXNhYmxlZCB7XHJcbiAgY3Vyc29yOiBub3QtYWxsb3dlZDtcclxuICBvcGFjaXR5OiAwLjU7XHJcbn1cclxuLmlzRGlzYWJsZWQgPiBhIHtcclxuICBjb2xvcjogY3VycmVudENvbG9yO1xyXG4gIGRpc3BsYXk6IGlubGluZS1ibG9jazsgLyogRm9yIElFMTEvIE1TIEVkZ2UgYnVnICovXHJcbiAgcG9pbnRlci1ldmVudHM6IG5vbmU7XHJcbiAgdGV4dC1kZWNvcmF0aW9uOiBub25lO1xyXG59XHJcbi5vdmVybGF5IHtcclxuICBwb3NpdGlvbjogYWJzb2x1dGU7XHJcbiAgei1pbmRleDogMTAwMjtcclxuICBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDI1NSwgMjU1LCAyNTUsIDAuNSk7XHJcbiAgd2lkdGg6IDEwMCU7XHJcbiAgaGVpZ2h0OiAxMDAlO1xyXG59XHJcbi5ibHVycmVkIHtcclxuICBmaWx0ZXI6IGJsdXIoMnB4KTtcclxufVxyXG4iXX0= */";
       /***/
     },
 
@@ -1488,7 +1241,7 @@
       /* harmony default export */
 
 
-      __webpack_exports__["default"] = "p {\n  font-family: Lato;\n}\nfooter {\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  background-color: rgba(255, 255, 255, 0.295);\n}\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImFwcC5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0UsaUJBQWlCO0FBQ25CO0FBQ0E7RUFDRSxlQUFlO0VBQ2YsU0FBUztFQUNULE9BQU87RUFDUCxXQUFXO0VBQ1gsNENBQTRDO0FBQzlDIiwiZmlsZSI6ImFwcC5jb21wb25lbnQuY3NzIiwic291cmNlc0NvbnRlbnQiOlsicCB7XG4gIGZvbnQtZmFtaWx5OiBMYXRvO1xufVxuZm9vdGVyIHtcbiAgcG9zaXRpb246IGZpeGVkO1xuICBib3R0b206IDA7XG4gIGxlZnQ6IDA7XG4gIHdpZHRoOiAxMDAlO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiByZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMjk1KTtcbn1cbiJdfQ== */";
+      __webpack_exports__["default"] = "\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJhcHAuY29tcG9uZW50LmNzcyJ9 */";
       /***/
     },
 
@@ -1536,7 +1289,7 @@
       /* harmony default export */
 
 
-      __webpack_exports__["default"] = "#viewer {\r\n  position: relative;\r\n}\r\n#timestamp {\r\n  position: absolute;\r\n  width: 100%;\r\n  top: 0;\r\n  right: 0;\r\n  color: #666;\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n\r\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInZpZXdlci5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0Usa0JBQWtCO0FBQ3BCO0FBQ0E7RUFDRSxrQkFBa0I7RUFDbEIsV0FBVztFQUNYLE1BQU07RUFDTixRQUFRO0VBQ1IsV0FBVztFQUNYLGlCQUFpQjtFQUNqQixhQUFhO0FBQ2YiLCJmaWxlIjoidmlld2VyLmNvbXBvbmVudC5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyIjdmlld2VyIHtcclxuICBwb3NpdGlvbjogcmVsYXRpdmU7XHJcbn1cclxuI3RpbWVzdGFtcCB7XHJcbiAgcG9zaXRpb246IGFic29sdXRlO1xyXG4gIHdpZHRoOiAxMDAlO1xyXG4gIHRvcDogMDtcclxuICByaWdodDogMDtcclxuICBjb2xvcjogIzY2NjtcclxuICB0ZXh0LWFsaWduOiByaWdodDtcclxuICBwYWRkaW5nOiAxMHB4O1xyXG59XHJcbiJdfQ== */";
+      __webpack_exports__["default"] = "#viewer {\r\n  position: relative;\r\n}\r\n#timestamp {\r\n  position: absolute;\r\n  width: 100%;\r\n  top: 0;\r\n  right: 0;\r\n  color: #666;\r\n  text-align: right;\r\n  padding: 10px;\r\n}\r\n.overlay {\r\n  position: absolute;\r\n  z-index: 1002;\r\n  background-color: rgba(255, 255, 255, 0.5);\r\n  width: 100%;\r\n  height: 100%;\r\n}\r\n.blurred {\r\n  filter: blur(2px);\r\n}\r\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInZpZXdlci5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0Usa0JBQWtCO0FBQ3BCO0FBQ0E7RUFDRSxrQkFBa0I7RUFDbEIsV0FBVztFQUNYLE1BQU07RUFDTixRQUFRO0VBQ1IsV0FBVztFQUNYLGlCQUFpQjtFQUNqQixhQUFhO0FBQ2Y7QUFDQTtFQUNFLGtCQUFrQjtFQUNsQixhQUFhO0VBQ2IsMENBQTBDO0VBQzFDLFdBQVc7RUFDWCxZQUFZO0FBQ2Q7QUFDQTtFQUNFLGlCQUFpQjtBQUNuQiIsImZpbGUiOiJ2aWV3ZXIuY29tcG9uZW50LmNzcyIsInNvdXJjZXNDb250ZW50IjpbIiN2aWV3ZXIge1xyXG4gIHBvc2l0aW9uOiByZWxhdGl2ZTtcclxufVxyXG4jdGltZXN0YW1wIHtcclxuICBwb3NpdGlvbjogYWJzb2x1dGU7XHJcbiAgd2lkdGg6IDEwMCU7XHJcbiAgdG9wOiAwO1xyXG4gIHJpZ2h0OiAwO1xyXG4gIGNvbG9yOiAjNjY2O1xyXG4gIHRleHQtYWxpZ246IHJpZ2h0O1xyXG4gIHBhZGRpbmc6IDEwcHg7XHJcbn1cclxuLm92ZXJsYXkge1xyXG4gIHBvc2l0aW9uOiBhYnNvbHV0ZTtcclxuICB6LWluZGV4OiAxMDAyO1xyXG4gIGJhY2tncm91bmQtY29sb3I6IHJnYmEoMjU1LCAyNTUsIDI1NSwgMC41KTtcclxuICB3aWR0aDogMTAwJTtcclxuICBoZWlnaHQ6IDEwMCU7XHJcbn1cclxuLmJsdXJyZWQge1xyXG4gIGZpbHRlcjogYmx1cigycHgpO1xyXG59Il19 */";
       /***/
     },
 
@@ -1548,7 +1301,7 @@
       /* harmony default export */
 
 
-      __webpack_exports__["default"] = "<h4 class=\"text-center\">Todas Sessões gravadas</h4>\n<table class=\"table table-striped\">\n  <thead>\n    <tr>\n      <th scope=\"col\">Sessão ID</th>\n      <th scope=\"col\">Início</th>\n      <th scope=\"col\">Fim</th>\n      <th scope=\"col\">link</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr *ngFor=\"let session of sessions\">\n      <th scope=\"row\">{{session.session}}</th>\n      <td>{{session.startDate}}</td>\n      <td>{{session.endDate}}</td>\n      <td class=\"\">\n        <a [routerLink]=\"['/view/', session.session]\">Visualizar</a>\n      </td>\n    </tr>\n  </tbody>\n</table>";
+      __webpack_exports__["default"] = "<h4 class=\"text-center\">Todas Sessões gravadas</h4>\n<div class=\"position-relative\">\n  <table class=\"table table-striped\" [class.blurred]=\"showSpinner\">\n    <thead>\n      <tr>\n        <th scope=\"col\">Sessão ID</th>\n        <th scope=\"col\">Início</th>\n        <th scope=\"col\">Fim</th>\n        <th scope=\"col\">Frames</th>\n        <th scope=\"col\">Grupo</th>\n        <th scope=\"col\">link</th>\n      </tr>\n    </thead>\n    <tbody>\n      <tr *ngFor=\"let session of sessions\">\n        <th scope=\"row\">{{session.session}}</th>\n        <td>{{session.startDate}}</td>\n        <td>{{session.endDate}}</td>\n        <td>{{session.frames}}</td>\n        <td>{{session.totalFrames == session.frames ? 'Não':'Sim'}}</td>\n        <td class=\"\">\n          <a [routerLink]=\"['/view/', session.session]\">Visualizar</a>\n        </td>\n      </tr>\n    </tbody>\n  </table>\n  <div class=\"overlay position-absolute top-0 end-0\" *ngIf=\"showSpinner\">\n    <div class=\"spinner-wrapper pt-5\">\n      <img class=\"m-auto d-block mt-5\" style='width:60px' src=\"https://whymob.dev/ysmart/loading.gif\">\n    </div>\n  </div>\n</div>";
       /***/
     },
 
@@ -1560,7 +1313,7 @@
       /* harmony default export */
 
 
-      __webpack_exports__["default"] = "<h1 class=\"text-center\">{{title}}</h1>\n<hr />\n<nav class=\"text-center\">\n  <a routerLink=\"/\">Todas as sessões</a>\n  &nbsp;\n  <a routerLink=\"/small\">Sessões de curta duração</a>\n  &nbsp;\n  <a routerLink=\"/processed\">Sessões processadas</a>\n</nav>\n<hr />\n<router-outlet></router-outlet>\n<footer class=\"text-end p-2 text-muted\">powered by whymob</footer>";
+      __webpack_exports__["default"] = "<h1 class=\"text-center\">{{title}}</h1>\n<hr />\n<nav class=\"text-center\">\n  <a routerLink=\"/\">Todas as sessões</a>\n  &nbsp;\n  <a routerLink=\"/small\">Sessões de curta duração</a>\n  &nbsp;\n  <a routerLink=\"/processed\">Sessões processadas</a>\n</nav>\n<hr />\n<router-outlet></router-outlet>\n<footer class=\"fixed-bottom p-2 text-end text-muted\" style=\"background-color: rgba(255, 255, 255, 0.6);\">powered by whymob</footer>";
       /***/
     },
 
@@ -1596,7 +1349,7 @@
       /* harmony default export */
 
 
-      __webpack_exports__["default"] = "<h4 class=\"text-center\">Sessões gravadas com duração inferior a: {{limit}}s</h4>\n<table class=\"table table-striped\">\n  <thead>\n    <tr>\n      <th scope=\"col\">Sessão ID</th>\n      <th scope=\"col\">Duração</th>\n      <th scope=\"col\">Frames</th>\n      <th scope=\"col\">link</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr *ngFor=\"let session of sessions\">\n      <th scope=\"row\">{{session.session}}</th>\n      <td>{{session.duration}}</td>\n      <td>{{session.frames}}</td>\n      <td class=\"\">\n        <a [routerLink]=\"['/view/', session.session]\">Visualizar</a>\n      </td>\n    </tr>\n  </tbody>\n</table>";
+      __webpack_exports__["default"] = "<h4 class=\"text-center\">Sessões gravadas com duração inferior a: {{limit}}s</h4>\n<table class=\"table table-striped\">\n  <thead>\n    <tr>\n      <th scope=\"col\">Sessão ID</th>\n      <th scope=\"col\">Duração</th>\n      <th scope=\"col\">Frames</th>\n      <th scope=\"col\">Grupo</th>\n      <th scope=\"col\">link</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr *ngFor=\"let session of sessions\">\n      <th scope=\"row\">{{session.session}}</th>\n      <td>{{session.duration}}</td>\n      <td>{{session.frames}}</td>\n      <td>{{session.totalFrames == session.frames ? 'Não':'Sim'}}</td>\n      <td class=\"\">\n        <a [routerLink]=\"['/view/', session.session]\">Visualizar</a>\n      </td>\n    </tr>\n  </tbody>\n</table>";
       /***/
     },
 
@@ -1608,7 +1361,7 @@
       /* harmony default export */
 
 
-      __webpack_exports__["default"] = "<p class=\"text-center fw-bold text-uppercase\">\n  Sessão {{id}}\n</p>\n<div id=\"viewer\">\n  <span id=\"timestamp\"></span>\n  <img *ngIf=\"!dataLoaded\" id=\"loading\" class=\"m-auto d-block\" style='width:60px' src=\"https://whymob.dev/ysmart/loading.gif\">\n</div>\n<p class=\"text-center\" *ngIf=\"dataLoaded\">Sessão gravada em {{sessionDate}} com uma duração de {{sessionDuration}} e\n  {{totalFrames}} frames. ({{requestId}})\n</p>";
+      __webpack_exports__["default"] = "<h3 class=\"text-center fw-bold text-uppercase\">\n  Sessão {{id}}\n</h3>\n<div class=\"position-relative\">\n  <div class=\"viewer-wrapper\" [class.blurred]=\"showSpinner\">\n    <div id=\"viewer\" class=\"position-relative\">\n      <span class=\"d-block end-0 pe-3 position-absolute pt-2 text-end top-0\">{{frameTimestamp}}</span>\n      <span class=\"d-block start-0 ps-3 position-absolute pt-2 text-start top-0\">{{timestamp}}</span>\n      <span class=\"bottom-0 d-block end-0 pb-2 pe-3 position-absolute text-end\">{{statusMsg}}</span>\n    </div>\n    <div class=\"row\" *ngIf=\"!showSpinner\">\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h4>Dados da sessão</h4> \n          <div>Sessão gravada em:</div>\n          <div class=\"fw-bolder\">{{sessionDate}} </div>\n          <div>com uma duração de:</div>\n          <div><span class=\"fw-bolder\">{{sessionDuration}}</span> e <span class=\"fw-bolder\">{{totalFrames}}</span> frames.</div>\n          <div>(Animation frame ID:<span class=\"fw-bolder\">{{requestId}}</span>)</div>\n      </div>\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h5>Dados de oportunidades</h5> \n          <p>Informação a adiccionar.</p> \n      </div>\n      <div class=\"col-md-4 col-sm-12 pt-4\">\n          <h5>Visualizador</h5>\n          <div class=\"form-check form-switch\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"smoothing\"\n              [ngModelOptions]=\"{standalone: true}\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Suavizador de pontos (corpo)</label>\n          </div>                             \n          <div class=\"mt-2\">\n              <div class=\"btn-group me-2\" role=\"group\" aria-label=\"First group\">\n                  <button type=\"button\" class=\"btn btn-outline-secondary\">\n                      <i class=\"bi bi-skip-backward-fill\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\" (click)=\"paused = !paused\">\n                      <i class=\"bi bi-play-fill\" *ngIf=\"paused\"></i>\n                      <i class=\"bi bi-pause-fill\" *ngIf=\"!paused\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\">\n                      <i class=\"bi bi-skip-forward-fill\"></i>\n                  </button>\n              </div>\n          </div>\n      </div>\n    </div>\n  </div>\n  <div class=\"position-absolute top-0 bottom-0 start-0 end-0\" *ngIf=\"showSpinner\">\n    <div class=\"spinner-wrapper pt-5\">\n      <img class=\"m-auto d-block mt-5\" style=\"width:60px\" src=\"https://whymob.dev/ysmart/loading.gif\">\n      <span class=\"m-auto d-block mt-2 w-50 text-center text-secondary\">Loading</span>\n    </div>\n  </div>\n</div>\n\n\n";
       /***/
     }
   },
