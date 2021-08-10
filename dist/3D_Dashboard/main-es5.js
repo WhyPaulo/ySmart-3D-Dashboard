@@ -679,10 +679,18 @@
           this.http = http;
           this.showSpinner = true;
           this.timestamp = '0';
+          this.currentFrame = 0;
           this.frameTimestamp = '0';
           this.paused = false;
-          this.smoothing = true;
+          this.smoothing = false;
+          this.distance = true;
+          this.rawData = false;
           this.statusMsg = '';
+          this.actorMaxArea = {
+            x: 20,
+            y: 200,
+            z: 20
+          };
           this.data = {
             frameConfig: {
               x: 640,
@@ -694,21 +702,15 @@
               camY: -300,
               camRX: -36,
               minP: 0,
-              mode: '3d',
-              framePointsCount: 18,
               maxMovement: 5
             },
-            actores: [],
+            frames: [],
             camaPoints: {
               x: 0.10985056310892105,
               y: -0.13395646214485168,
               z: 3.380000114440918
             },
-            dispensadores: [{
-              x: 0.2630771994590759,
-              y: -0.019362561404705048,
-              z: 3.4200000762939453
-            }],
+            dispensadores: [],
             floor: [{
               x: -1.1797891855239868,
               y: 1.4506481885910034,
@@ -740,10 +742,11 @@
           value: function ngOnInit() {
             var _this3 = this;
 
-            this.http.get('https://ysmartdata.whymob.dev/get/actor-frames/' + this.id).subscribe(function (data) {
-              _this3.totalFrames = data.actores[0].length / 18;
+            this.http.get('https://ysmartdata.whymob.dev/get/session/' + this.id).subscribe(function (data) {
               _this3.sessionDuration = data.duration;
-              _this3.data.actores = data.actores; //this.data.camaPoints = data.camaPoints;
+              _this3.data.frames = Object.entries(data.frames).sort();
+              _this3.totalFrames = _this3.data.frames.length;
+              _this3.data.dispensadores = data.dispensadores; //this.data.camaPoints = data.camaPoints;
 
               _this3.buildViewer();
 
@@ -754,30 +757,26 @@
           key: "buildViewer",
           value: function buildViewer() {
             var comp = this;
-            var camera, scene, renderer, actor, sessao, floor, cameraControls, clock, stats, gui;
+            var camera, scene, renderer, actors, sessao, floor, cameraControls, clock, stats, gui;
             var frameConfig, framePointsCount;
             var currentPoints = [];
-            var play = true;
             var paused = false;
             var fps = 15;
             var factor = 100;
-            var currentFrame = 0;
-            var maxFrames; //Frames
+            var currentFrame = 0; //Frames
 
-            var frame, camaPoints, dispensadores, detectedFloor;
+            var frames, camaPoints, dispensadores, detectedFloor;
             frameConfig = this.data.frameConfig;
-            frame = this.data.actores[0];
+            frames = this.data.frames;
             framePointsCount = frameConfig.framePointsCount;
             camaPoints = this.data.camaPoints;
             dispensadores = this.data.dispensadores;
             detectedFloor = this.data.floor;
-            maxFrames = this.data.actores[0].length / framePointsCount;
             init();
             animate();
 
             function init() {
-              console.log('Positions using', frameConfig.mode); // Set renderer
-
+              // Set renderer
               renderer = new three__WEBPACK_IMPORTED_MODULE_3__.WebGLRenderer({
                 antialias: true
               });
@@ -823,6 +822,7 @@
               var dispensador1Geo = new three__WEBPACK_IMPORTED_MODULE_3__.BoxGeometry(25, 50, 25);
               var dispensador2Geo = new three__WEBPACK_IMPORTED_MODULE_3__.BoxGeometry(25, 50, 25);
               var dispensador1mesh = new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(dispensador1Geo, dispensadorMat);
+              console.log(dispensadores);
               var fixedDispensadorPoint = fixAxis(dispensadores[0]);
               dispensador1.position.set(fixedDispensadorPoint.x, fixedDispensadorPoint.y, fixedDispensadorPoint.z);
               dispensador1.add(dispensador1mesh);
@@ -843,11 +843,12 @@
               var baseFloor = new three__WEBPACK_IMPORTED_MODULE_3__.Line(floorGeometry, floorLineineMaterial); //sessao.add(baseFloor);
               //Create actor group for animation
 
-              actor = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
-              actor.name = 'actor';
-              sessao.add(actor);
-              scene.add(sessao);
-              newFrame2(); //lights
+              actors = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
+              actors.name = 'actors';
+              sessao.add(actors);
+              scene.add(sessao); //newFrame2();
+
+              redrawFrame(); //lights
 
               var dirLight1 = new three__WEBPACK_IMPORTED_MODULE_3__.DirectionalLight(0xffffff);
               dirLight1.position.set(1, 1, 1);
@@ -866,34 +867,15 @@
             }
 
             function fixAxis(point) {
-              if (frameConfig.mode == 'pixel') {
-                //Frame axis is top left, world is center bottom
-                //offset x half the frame withd to the left
-                var tempX = scale(point[0], 0, frameConfig.x, frameConfig.x / 2 * -1, frameConfig.x / 2); //point[0] - (frameConfig.x /2);
-
-                var tempY = scale(point[1], 0, frameConfig.y, frameConfig.y, 0); //frameConfig.y-point[1]-frameConfig.camY;
-
-                var tempZ = scale(point[2], 0, frameConfig.z, frameConfig.x / 2, frameConfig.x / 2 * -1);
-                return {
-                  x: tempX,
-                  y: tempY,
-                  z: tempZ,
-                  p: point[3]
-                }; //return {x: point[0], y:point[1], z:point[2]*200, p:point[3]}
-              } else {
-                var _tempX = point.x * factor;
-
-                var _tempY = point.y * factor * -1;
-
-                var _tempZ = point.z * factor * -1;
-
-                return {
-                  x: _tempX,
-                  y: _tempY,
-                  z: _tempZ,
-                  p: point.p
-                };
-              }
+              var tempX = point.x * factor;
+              var tempY = point.y * factor * -1;
+              var tempZ = point.z * factor * -1;
+              return {
+                x: tempX,
+                y: tempY,
+                z: tempZ,
+                p: point.p
+              };
             }
 
             function onWindowResize() {
@@ -935,9 +917,9 @@
 
             function newFrame2() {
               //var selectedObject = scene.getObjectByName('actor');
-              actor.clear();
-              sessao.remove(actor);
-              var startIndex = currentFrame % (frame.length / framePointsCount) * framePointsCount; //console.log('/////////////////')
+              actors.clear();
+              sessao.remove(actors);
+              var startIndex = currentFrame % (frames.length / framePointsCount) * framePointsCount; //console.log('/////////////////')
               //console.log('// FRAME',currentFrame%(frame.length/framePointsCount))
               //rebuild actor
               //create a blue LineBasicMaterial
@@ -953,12 +935,12 @@
               });
               var pointColors = [];
               var points = [];
-              actor = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
-              actor.name = 'actor';
+              actors = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
+              actors.name = 'actors';
 
               for (var i = 0; i < 5; i++) {
-                var fixedPoint = fixAxis(frame[startIndex + i]);
-                pointColors.push(1 - 1 * frame[i][3], 1 * frame[i][3], 0);
+                var fixedPoint = fixAxis(frames[startIndex + i]);
+                pointColors.push(1 - 1 * frames[i][3], 1 * frames[i][3], 0);
                 points.push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
               }
 
@@ -966,7 +948,7 @@
               headGeometry.setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(points, 3));
               headGeometry.setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(pointColors, 3));
               var head = new three__WEBPACK_IMPORTED_MODULE_3__.Points(headGeometry, pointMaterial);
-              actor.add(head);
+              actors.add(head);
               var bodyPointsIndex = [[10, 8, 6, 12, 14, 16], [11, 9, 7, 13, 15, 17], [6, 7], [12, 13]];
               var linePoints = [];
               var lineGeometries = [];
@@ -981,7 +963,7 @@
 
                 for (var j = 0; j < bodyPointsIndex[_i].length; j++) {
                   //Skip point if it's above threshold
-                  if (frame[startIndex + (bodyPointsIndex[_i][j] - 1)].p > frameConfig.minP) {
+                  if (frames[startIndex + (bodyPointsIndex[_i][j] - 1)].p > frameConfig.minP) {
                     var _fixedPoint = {
                       x: 0,
                       y: 0,
@@ -998,7 +980,7 @@
                     comp.statusMsg = comp.smoothing ? 'smoothing on' : 'smoothing off';
 
                     if (startIndex < framePointsCount || !comp.smoothing) {
-                      _fixedPoint = fixAxis(frame[startIndex + (bodyPointsIndex[_i][j] - 1)]);
+                      _fixedPoint = fixAxis(frames[startIndex + (bodyPointsIndex[_i][j] - 1)]);
                       currentPoints[bodyPointsIndex[_i][j] - 1] = _fixedPoint;
                     }
 
@@ -1006,7 +988,7 @@
                       comp.statusMsg = 'limiter drift disabled - ' + comp.statusMsg;
                       _fixedPoint = currentPoints[bodyPointsIndex[_i][j] - 1];
                     } else {
-                      _fixedPoint = fixAxis(frame[startIndex + (bodyPointsIndex[_i][j] - 1)]);
+                      _fixedPoint = fixAxis(frames[startIndex + (bodyPointsIndex[_i][j] - 1)]);
                       currentPoint = currentPoints[bodyPointsIndex[_i][j] - 1];
                       newPoint.x = motionLimiter(_fixedPoint.x, currentPoint.x, frameConfig.maxMovement);
                       newPoint.y = motionLimiter(_fixedPoint.y, currentPoint.y, frameConfig.maxMovement);
@@ -1030,24 +1012,123 @@
 
                 lines[_i].computeLineDistances();
 
-                actor.add(lines[_i]);
+                actors.add(lines[_i]);
               }
 
-              sessao.add(actor); //scene.add(sessao)
+              sessao.add(actors); //scene.add(sessao)
 
               if (!comp.paused) {
-                currentFrame++;
+                comp.currentFrame++;
               } else {
                 comp.statusMsg = 'paused - ' + comp.statusMsg;
               }
 
               if (document.getElementById('viewer')) {
-                comp.timestamp = (currentFrame % (frame.length / framePointsCount)).toString();
+                comp.timestamp = (comp.currentFrame % (frames.length / framePointsCount)).toString();
                 setTimeout(newFrame2, 1000 / fps);
               } else {
                 console.log('newframe stopped');
               } //console.log(actor)
 
+            }
+
+            function redrawFrame() {
+              actors.clear();
+              sessao.remove(actors);
+              actors = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
+              actors.name = 'actors';
+              comp.frameTimestamp = frames[comp.currentFrame][0];
+              comp.statusMsg = comp.smoothing ? 'Suavização de velocidade on' : comp.distance ? 'Suavização de distância on' : comp.rawData ? 'Suavização off' : 'Suavização de velocidade off';
+              frames[comp.currentFrame][1].forEach(function (actor, index) {
+                return drawActors(actor, index);
+              });
+              sessao.add(actors);
+
+              if (!comp.paused) {
+                comp.currentFrame = ++comp.currentFrame % frames.length;
+              } else {
+                comp.statusMsg = 'paused - ' + comp.statusMsg;
+              }
+
+              if (document.getElementById('viewer')) {
+                comp.timestamp = comp.currentFrame.toString();
+                setTimeout(redrawFrame, 1000 / fps);
+              } else {
+                console.log('newframe stopped');
+              }
+            }
+
+            function drawActors(actor, index) {
+              //actor object received, add actor to actor Three Group
+              //console.log(actor)
+              var addedActor = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
+              var lineMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.LineBasicMaterial({
+                vertexColors: three__WEBPACK_IMPORTED_MODULE_3__.VertexColors,
+                linewidth: 40 // lineWidth not universally supported works with safari
+
+              });
+              var pointMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.PointsMaterial({
+                size: 2,
+                vertexColors: three__WEBPACK_IMPORTED_MODULE_3__.VertexColors
+              });
+              var p = 'p';
+              var pointColors = [];
+              var points = [];
+
+              for (var i = 1; i <= 5; i++) {
+                var fixedPoint = fixAxis(actor[p + i]);
+                pointColors.push(1 - 1 * fixedPoint.p, 1 * fixedPoint.p, 0);
+                points.push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
+              }
+
+              var headGeometry = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry();
+              headGeometry.setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(points, 3));
+              headGeometry.setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(pointColors, 3));
+              var head = new three__WEBPACK_IMPORTED_MODULE_3__.Points(headGeometry, pointMaterial);
+              addedActor.add(head);
+              var bodyPointsIndex = [[10, 8, 6, 12, 14, 16], [11, 9, 7, 13, 15, 17], [6, 7], [12, 13]];
+              var linePoints = [];
+              var lineGeometries = [];
+              var lineColors = [];
+              var lines = [];
+              var centralPoint = fixAxis(actor['ponto_central']);
+
+              for (var _i2 = 0; _i2 < bodyPointsIndex.length; _i2++) {
+                linePoints[_i2] = [];
+                lineColors[_i2] = [];
+                lineGeometries[_i2] = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry().setFromPoints(linePoints[_i2]);
+
+                for (var j = 0; j < bodyPointsIndex[_i2].length; j++) {
+                  //Skip point if it's above threshold
+                  if (actor[p + bodyPointsIndex[_i2][j]].p > frameConfig.minP) {
+                    //if starting frame skip max velocity check
+                    var _fixedPoint2 = fixAxis(actor[p + bodyPointsIndex[_i2][j]]);
+
+                    if (comp.distance) {
+                      //Distance smoothing
+                      _fixedPoint2.x = motionLimiter(_fixedPoint2.x, centralPoint.x, comp.actorMaxArea.x);
+                      _fixedPoint2.y = motionLimiter(_fixedPoint2.y, centralPoint.y, comp.actorMaxArea.y);
+                      _fixedPoint2.z = motionLimiter(_fixedPoint2.z, centralPoint.z, comp.actorMaxArea.z);
+                    } else if (comp.smoothing) {}
+
+                    linePoints[_i2].push(_fixedPoint2.x, _fixedPoint2.y, _fixedPoint2.z);
+
+                    lineColors[_i2].push(1 - 1 * _fixedPoint2.p, 1 * _fixedPoint2.p, 0);
+                  }
+                }
+
+                lineGeometries[_i2].setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(linePoints[_i2], 3));
+
+                lineGeometries[_i2].setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(lineColors[_i2], 3));
+
+                lines[_i2] = new three__WEBPACK_IMPORTED_MODULE_3__.Line(lineGeometries[_i2], lineMaterial);
+
+                lines[_i2].computeLineDistances();
+
+                actors.add(lines[_i2]);
+              }
+
+              actors.add(addedActor);
             }
 
             function scale(number, inMin, inMax, outMin, outMax) {
@@ -1361,7 +1442,7 @@
       /* harmony default export */
 
 
-      __webpack_exports__["default"] = "<h3 class=\"text-center fw-bold text-uppercase\">\n  Sessão {{id}}\n</h3>\n<div class=\"position-relative\">\n  <div class=\"viewer-wrapper\" [class.blurred]=\"showSpinner\">\n    <div id=\"viewer\" class=\"position-relative\">\n      <span class=\"d-block end-0 pe-3 position-absolute pt-2 text-end top-0\">{{frameTimestamp}}</span>\n      <span class=\"d-block start-0 ps-3 position-absolute pt-2 text-start top-0\">{{timestamp}}</span>\n      <span class=\"bottom-0 d-block end-0 pb-2 pe-3 position-absolute text-end\">{{statusMsg}}</span>\n    </div>\n    <div class=\"row\" *ngIf=\"!showSpinner\">\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h4>Dados da sessão</h4> \n          <div>Sessão gravada em:</div>\n          <div class=\"fw-bolder\">{{sessionDate}} </div>\n          <div>com uma duração de:</div>\n          <div><span class=\"fw-bolder\">{{sessionDuration}}</span> e <span class=\"fw-bolder\">{{totalFrames}}</span> frames.</div>\n          <div>(Animation frame ID:<span class=\"fw-bolder\">{{requestId}}</span>)</div>\n      </div>\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h5>Dados de oportunidades</h5> \n          <p>Informação a adiccionar.</p> \n      </div>\n      <div class=\"col-md-4 col-sm-12 pt-4\">\n          <h5>Visualizador</h5>\n          <div class=\"form-check form-switch\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"smoothing\"\n              [ngModelOptions]=\"{standalone: true}\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Suavizador de pontos (corpo)</label>\n          </div>                             \n          <div class=\"mt-2\">\n              <div class=\"btn-group me-2\" role=\"group\" aria-label=\"First group\">\n                  <button type=\"button\" class=\"btn btn-outline-secondary\">\n                      <i class=\"bi bi-skip-backward-fill\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\" (click)=\"paused = !paused\">\n                      <i class=\"bi bi-play-fill\" *ngIf=\"paused\"></i>\n                      <i class=\"bi bi-pause-fill\" *ngIf=\"!paused\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\">\n                      <i class=\"bi bi-skip-forward-fill\"></i>\n                  </button>\n              </div>\n          </div>\n      </div>\n    </div>\n  </div>\n  <div class=\"position-absolute top-0 bottom-0 start-0 end-0\" *ngIf=\"showSpinner\">\n    <div class=\"spinner-wrapper pt-5\">\n      <img class=\"m-auto d-block mt-5\" style=\"width:60px\" src=\"https://whymob.dev/ysmart/loading.gif\">\n      <span class=\"m-auto d-block mt-2 w-50 text-center text-secondary\">Loading</span>\n    </div>\n  </div>\n</div>\n\n\n";
+      __webpack_exports__["default"] = "<h3 class=\"text-center fw-bold text-uppercase\">\n  Sessão {{id}}\n</h3>\n<div class=\"position-relative\">\n  <div class=\"viewer-wrapper\" [class.blurred]=\"showSpinner\">\n    <div id=\"viewer\" class=\"position-relative\">\n      <span class=\"d-block end-0 pe-3 position-absolute pt-2 text-end top-0\">{{frameTimestamp}}</span>\n      <span class=\"d-block start-0 ps-3 position-absolute pt-2 text-start top-0\">{{timestamp}}</span>\n      <span class=\"bottom-0 d-block end-0 pb-2 pe-3 position-absolute text-end\">{{statusMsg}}</span>\n    </div>\n    <div class=\"row\" *ngIf=\"!showSpinner\">\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h4>Dados da sessão</h4> \n          <div>Sessão gravada em:</div>\n          <div class=\"fw-bolder\">{{sessionDate}} </div>\n          <div>com uma duração de:</div>\n          <div><span class=\"fw-bolder\">{{sessionDuration}}</span> e <span class=\"fw-bolder\">{{totalFrames}}</span> frames.</div>\n          <div>(Animation frame ID:<span class=\"fw-bolder\">{{requestId}}</span>)</div>\n      </div>\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h5>Dados de oportunidades</h5> \n          <p>Informação a adiccionar.</p>\n          <h6>Playback</h6>\n          <div class=\"mt-2\">\n              <div class=\"btn-group me-2\" role=\"group\" aria-label=\"First group\">\n                  <button type=\"button\" class=\"btn btn-outline-secondary\"(click)=\"currentFrame = (currentFrame == 0)? totalFrames-1 : currentFrame -1 \">\n                      <i class=\"bi bi-skip-backward-fill\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\" (click)=\"paused = !paused\">\n                      <i class=\"bi bi-play-fill\" *ngIf=\"paused\"></i>\n                      <i class=\"bi bi-pause-fill\" *ngIf=\"!paused\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\" (click)=\"currentFrame = (currentFrame + 1)% totalFrames\">\n                      <i class=\"bi bi-skip-forward-fill\"></i>\n                  </button>\n              </div>\n          </div>\n      </div>\n      <div class=\"col-md-4 col-sm-12 pt-4\">\n          <h5>Visualizador</h5>\n          <h6>Estratégia de suavização</h6>\n          <div class=\"form-check form-switch\" *ngIf=\"false\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"smoothing\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"distance = !smoothing; rawData = false\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Velocidade max. (corpo)</label>\n          </div> \n          <div class=\"form-check form-switch\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"distance\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"smoothing = false; rawData = !distance\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Distância Central (corpo)</label>\n          </div>  \n          <div class=\"form-check form-switch\" *ngIf=\"false\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"rawData\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"distance = !rawData; smoothing = false\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Sem suavização</label>\n          </div>\n          <div *ngIf=\"distance\">\n            <label for=\"customRange3\">Limites de distância</label><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"20\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.x\" id=\"customRange3\">\n            <span> x: {{actorMaxArea.x}}</span><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"202\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.y\" id=\"customRange3\">\n            <span> y: {{actorMaxArea.y}}</span><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"20\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.z\" id=\"customRange3\">\n            <span> z: {{actorMaxArea.z}}</span>\n          </div>\n      </div>\n    </div>\n  </div>\n  <div class=\"position-absolute top-0 bottom-0 start-0 end-0\" *ngIf=\"showSpinner\">\n    <div class=\"spinner-wrapper pt-5\">\n      <img class=\"m-auto d-block mt-5\" style=\"width:60px\" src=\"https://whymob.dev/ysmart/loading.gif\">\n      <span class=\"m-auto d-block mt-2 w-50 text-center text-secondary\">Loading</span>\n    </div>\n  </div>\n</div>\n\n\n";
       /***/
     }
   },

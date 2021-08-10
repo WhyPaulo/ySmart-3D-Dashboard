@@ -19,11 +19,15 @@ export class ViewerComponent implements OnInit {
   public totalFrames: number;
   public showSpinner = true;
   public timestamp = '0';
+  public currentFrame = 0;
   public frameTimestamp = '0';
   public requestId: number;
   public paused = false;
-  public smoothing = true;
+  public smoothing = false;
+  public distance = true;
+  public rawData = false;
   public statusMsg = '';
+  public actorMaxArea= { x: 20, y: 200, z: 20 }
 
   private data = {
     frameConfig: {
@@ -36,19 +40,15 @@ export class ViewerComponent implements OnInit {
       camY: -300,
       camRX: -36,
       minP: 0,
-      mode: '3d',
-      framePointsCount: 18,
       maxMovement: 5
     },
-    actores: [],
+    frames: [],
     camaPoints: {
       x: 0.10985056310892105,
       y: -0.13395646214485168,
       z: 3.380000114440918
     },
-    dispensadores: [
-      { x: 0.2630771994590759, y: -0.019362561404705048, z: 3.4200000762939453 }
-    ],
+    dispensadores: [],
     floor: [
       { x: -1.1797891855239868, y: 1.4506481885910034, z: 3.2119998931884766 },
       { x: -1.1293202638626099, y: 0.6508018970489502, z: 4.093999862670898 },
@@ -68,11 +68,12 @@ export class ViewerComponent implements OnInit {
   }
   ngOnInit() {
     this.http
-    .get('https://ysmartdata.whymob.dev/get/actor-frames/' + this.id)
+    .get('https://ysmartdata.whymob.dev/get/session/' + this.id)
     .subscribe((data: any) => {
-      this.totalFrames = data.actores[0].length / 18;
       this.sessionDuration = data.duration;
-      this.data.actores = data.actores;
+      this.data.frames = Object.entries(data.frames).sort();
+      this.totalFrames = this.data.frames.length;
+      this.data.dispensadores = data.dispensadores;
       //this.data.camaPoints = data.camaPoints;
       this.buildViewer();
       this.showSpinner = false;
@@ -84,7 +85,7 @@ export class ViewerComponent implements OnInit {
     let camera,
       scene,
       renderer,
-      actor,
+      actors,
       sessao,
       floor,
       cameraControls,
@@ -94,28 +95,23 @@ export class ViewerComponent implements OnInit {
 
     let frameConfig, framePointsCount;
     let currentPoints = [];
-    let play = true;
     let paused = false;
     let fps = 15;
     let factor = 100;
     let currentFrame = 0;
-    let maxFrames;
     //Frames
-    var frame, camaPoints, dispensadores, detectedFloor;
+    var frames, camaPoints, dispensadores, detectedFloor;
 
     frameConfig = this.data.frameConfig;
-    frame = this.data.actores[0];
+    frames = this.data.frames;
     framePointsCount = frameConfig.framePointsCount;
     camaPoints = this.data.camaPoints;
     dispensadores = this.data.dispensadores;
     detectedFloor = this.data.floor;
-    maxFrames = this.data.actores[0].length / framePointsCount;
     init();
     animate();
 
     function init() {
-      console.log('Positions using', frameConfig.mode);
-
       // Set renderer
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(
@@ -176,6 +172,7 @@ export class ViewerComponent implements OnInit {
       const dispensador2Geo = new THREE.BoxGeometry(25, 50, 25);
 
       const dispensador1mesh = new THREE.Mesh(dispensador1Geo, dispensadorMat);
+      console.log(dispensadores)
       let fixedDispensadorPoint = fixAxis(dispensadores[0]);
       dispensador1.position.set(
         fixedDispensadorPoint.x,
@@ -209,11 +206,12 @@ export class ViewerComponent implements OnInit {
       //sessao.add(baseFloor);
 
       //Create actor group for animation
-      actor = new THREE.Group();
-      actor.name = 'actor';
-      sessao.add(actor);
+      actors = new THREE.Group();
+      actors.name = 'actors';
+      sessao.add(actors);
       scene.add(sessao);
-      newFrame2();
+      //newFrame2();
+      redrawFrame();
 
       //lights
       const dirLight1 = new THREE.DirectionalLight(0xffffff);
@@ -238,34 +236,11 @@ export class ViewerComponent implements OnInit {
     }
 
     function fixAxis(point) {
-      if (frameConfig.mode == 'pixel') {
-        //Frame axis is top left, world is center bottom
-        //offset x half the frame withd to the left
-        let tempX = scale(
-          point[0],
-          0,
-          frameConfig.x,
-          (frameConfig.x / 2) * -1,
-          frameConfig.x / 2
-        ); //point[0] - (frameConfig.x /2);
-        let tempY = scale(point[1], 0, frameConfig.y, frameConfig.y, 0); //frameConfig.y-point[1]-frameConfig.camY;
-        let tempZ = scale(
-          point[2],
-          0,
-          frameConfig.z,
-          frameConfig.x / 2,
-          (frameConfig.x / 2) * -1
-        );
+      let tempX = point.x * factor;
+      let tempY = point.y * factor * -1;
+      let tempZ = point.z * factor * -1;
 
-        return { x: tempX, y: tempY, z: tempZ, p: point[3] };
-        //return {x: point[0], y:point[1], z:point[2]*200, p:point[3]}
-      } else {
-        let tempX = point.x * factor;
-        let tempY = point.y * factor * -1;
-        let tempZ = point.z * factor * -1;
-
-        return { x: tempX, y: tempY, z: tempZ, p: point.p };
-      }
+      return { x: tempX, y: tempY, z: tempZ, p: point.p };
     }
 
     function onWindowResize() {
@@ -314,10 +289,10 @@ export class ViewerComponent implements OnInit {
     }
     function newFrame2() {
       //var selectedObject = scene.getObjectByName('actor');
-      actor.clear();
-      sessao.remove(actor);
+      actors.clear();
+      sessao.remove(actors);
       let startIndex =
-        (currentFrame % (frame.length / framePointsCount)) * framePointsCount;
+        (currentFrame % (frames.length / framePointsCount)) * framePointsCount;
 
       //console.log('/////////////////')
       //console.log('// FRAME',currentFrame%(frame.length/framePointsCount))
@@ -336,12 +311,12 @@ export class ViewerComponent implements OnInit {
       let pointColors = [];
       let points = [];
 
-      actor = new THREE.Group();
-      actor.name = 'actor';
+      actors = new THREE.Group();
+      actors.name = 'actors';
 
       for (let i = 0; i < 5; i++) {
-        let fixedPoint = fixAxis(frame[startIndex + i]);
-        pointColors.push(1 - 1 * frame[i][3], 1 * frame[i][3], 0);
+        let fixedPoint = fixAxis(frames[startIndex + i]);
+        pointColors.push(1 - 1 * frames[i][3], 1 * frames[i][3], 0);
         points.push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
       }
 
@@ -356,7 +331,7 @@ export class ViewerComponent implements OnInit {
       );
       let head = new THREE.Points(headGeometry, pointMaterial);
 
-      actor.add(head);
+      actors.add(head);
 
       const bodyPointsIndex = [
         [10, 8, 6, 12, 14, 16],
@@ -378,7 +353,7 @@ export class ViewerComponent implements OnInit {
         for (let j = 0; j < bodyPointsIndex[i].length; j++) {
           //Skip point if it's above threshold
           if (
-            frame[startIndex + (bodyPointsIndex[i][j] - 1)].p > frameConfig.minP
+            frames[startIndex + (bodyPointsIndex[i][j] - 1)].p > frameConfig.minP
           ) {
             let fixedPoint = { x: 0, y: 0, z: 0, p: 0 };
             let newPoint = { x: 0, y: 0, z: 0, p: 1 };
@@ -386,7 +361,7 @@ export class ViewerComponent implements OnInit {
             comp.statusMsg = comp.smoothing?'smoothing on':'smoothing off';
             if (startIndex < framePointsCount || !comp.smoothing) {
               fixedPoint = fixAxis(
-                frame[startIndex + (bodyPointsIndex[i][j] - 1)]
+                frames[startIndex + (bodyPointsIndex[i][j] - 1)]
               );
               currentPoints[bodyPointsIndex[i][j] - 1] = fixedPoint;
             } if(comp.paused){
@@ -394,7 +369,7 @@ export class ViewerComponent implements OnInit {
               fixedPoint = currentPoints[bodyPointsIndex[i][j] - 1];
             } else {
               fixedPoint = fixAxis(
-                frame[startIndex + (bodyPointsIndex[i][j] - 1)]
+                frames[startIndex + (bodyPointsIndex[i][j] - 1)]
               );
               currentPoint = currentPoints[bodyPointsIndex[i][j] - 1];
               newPoint.x = motionLimiter(
@@ -431,25 +406,148 @@ export class ViewerComponent implements OnInit {
         );
         lines[i] = new THREE.Line(lineGeometries[i], lineMaterial);
         lines[i].computeLineDistances();
-        actor.add(lines[i]);
+        actors.add(lines[i]);
       }
-      sessao.add(actor);
+      sessao.add(actors);
       //scene.add(sessao)
       if (!comp.paused) {
-        currentFrame++;
+        comp.currentFrame++;
       } else {
         comp.statusMsg = 'paused - ' + comp.statusMsg;
       }
       if (document.getElementById('viewer')) {
         comp.timestamp = (
-          currentFrame %
-          (frame.length / framePointsCount)
+          comp.currentFrame %
+          (frames.length / framePointsCount)
         ).toString();
         setTimeout(newFrame2, 1000 / fps);
       } else {
         console.log('newframe stopped');
       }
       //console.log(actor)
+    }
+
+    function redrawFrame() {
+      actors.clear();
+      sessao.remove(actors);
+
+      actors = new THREE.Group();
+      actors.name = 'actors';
+      comp.frameTimestamp = frames[comp.currentFrame][0]
+      comp.statusMsg = comp.smoothing?'Suavização de velocidade on': comp.distance?'Suavização de distância on':comp.rawData?'Suavização off':'Suavização de velocidade off';
+      frames[comp.currentFrame][1].forEach((actor: object, index: any) =>
+        drawActors(actor, index)
+      );
+
+      sessao.add(actors);
+      if (!comp.paused) {
+        comp.currentFrame = ++comp.currentFrame % frames.length;
+      } else {
+        comp.statusMsg = 'paused - ' + comp.statusMsg;
+      }
+
+      if (document.getElementById('viewer')) {
+        comp.timestamp = comp.currentFrame.toString();
+        setTimeout(redrawFrame, 1000 / fps);
+      } else {
+        console.log('newframe stopped');
+      }
+    }
+    function drawActors(actor: object, index: any) {
+      //actor object received, add actor to actor Three Group
+      //console.log(actor)
+      const addedActor = new THREE.Group();
+      const lineMaterial = new THREE.LineBasicMaterial({
+        vertexColors: (<any>THREE).VertexColors, // inform material that geometry will provide color info
+        linewidth: 40 // lineWidth not universally supported works with safari
+      });
+      const pointMaterial = new THREE.PointsMaterial({
+        size: 2,
+        vertexColors: (<any>THREE).VertexColors
+      });
+
+      let p = 'p';
+
+      let pointColors = [];
+      let points = [];
+      for (let i = 1; i <= 5; i++) {
+        let fixedPoint = fixAxis(actor[p + i]);
+        pointColors.push(1 - 1 * fixedPoint.p, 1 * fixedPoint.p, 0);
+        points.push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
+      }
+      const headGeometry = new THREE.BufferGeometry();
+      headGeometry.setAttribute(
+        'position',
+        new THREE.Float32BufferAttribute(points, 3)
+      );
+      headGeometry.setAttribute(
+        'color',
+        new THREE.Float32BufferAttribute(pointColors, 3)
+      );
+      let head = new THREE.Points(headGeometry, pointMaterial);
+
+      addedActor.add(head);
+      const bodyPointsIndex = [
+        [10, 8, 6, 12, 14, 16],
+        [11, 9, 7, 13, 15, 17],
+        [6, 7],
+        [12, 13]
+      ];
+      let linePoints = [];
+      let lineGeometries = [];
+      let lineColors = [];
+      let lines = [];
+      let centralPoint = fixAxis(actor['ponto_central']);
+      for (let i = 0; i < bodyPointsIndex.length; i++) {
+        linePoints[i] = [];
+        lineColors[i] = [];
+        lineGeometries[i] = new THREE.BufferGeometry().setFromPoints(
+          linePoints[i]
+        );
+        for (let j = 0; j < bodyPointsIndex[i].length; j++) {
+          //Skip point if it's above threshold
+          if (actor[p + bodyPointsIndex[i][j]].p > frameConfig.minP) {
+            //if starting frame skip max velocity check
+            let fixedPoint = fixAxis(actor[p + bodyPointsIndex[i][j]]);
+            if(comp.distance){
+              //Distance smoothing
+              fixedPoint.x = motionLimiter(
+                fixedPoint.x,
+                centralPoint.x,
+                comp.actorMaxArea.x
+              );
+              fixedPoint.y = motionLimiter(
+                fixedPoint.y,
+                centralPoint.y,
+                comp.actorMaxArea.y
+              );
+              fixedPoint.z = motionLimiter(
+                fixedPoint.z,
+                centralPoint.z,
+                comp.actorMaxArea.z
+              );
+            } else if(comp.smoothing){
+
+            }
+            
+
+            linePoints[i].push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
+            lineColors[i].push(1 - 1 * fixedPoint.p, 1 * fixedPoint.p, 0);
+          }
+        }
+        lineGeometries[i].setAttribute(
+          'position',
+          new THREE.Float32BufferAttribute(linePoints[i], 3)
+        );
+        lineGeometries[i].setAttribute(
+          'color',
+          new THREE.Float32BufferAttribute(lineColors[i], 3)
+        );
+        lines[i] = new THREE.Line(lineGeometries[i], lineMaterial);
+        lines[i].computeLineDistances();
+        actors.add(lines[i]);
+      }
+      actors.add(addedActor);
     }
 
     function scale(number, inMin, inMax, outMin, outMax) {

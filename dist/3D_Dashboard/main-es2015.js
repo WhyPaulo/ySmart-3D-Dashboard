@@ -401,10 +401,14 @@ let ViewerComponent = class ViewerComponent {
         this.http = http;
         this.showSpinner = true;
         this.timestamp = '0';
+        this.currentFrame = 0;
         this.frameTimestamp = '0';
         this.paused = false;
-        this.smoothing = true;
+        this.smoothing = false;
+        this.distance = true;
+        this.rawData = false;
         this.statusMsg = '';
+        this.actorMaxArea = { x: 20, y: 200, z: 20 };
         this.data = {
             frameConfig: {
                 x: 640,
@@ -416,19 +420,15 @@ let ViewerComponent = class ViewerComponent {
                 camY: -300,
                 camRX: -36,
                 minP: 0,
-                mode: '3d',
-                framePointsCount: 18,
                 maxMovement: 5
             },
-            actores: [],
+            frames: [],
             camaPoints: {
                 x: 0.10985056310892105,
                 y: -0.13395646214485168,
                 z: 3.380000114440918
             },
-            dispensadores: [
-                { x: 0.2630771994590759, y: -0.019362561404705048, z: 3.4200000762939453 }
-            ],
+            dispensadores: [],
             floor: [
                 { x: -1.1797891855239868, y: 1.4506481885910034, z: 3.2119998931884766 },
                 { x: -1.1293202638626099, y: 0.6508018970489502, z: 4.093999862670898 },
@@ -442,11 +442,12 @@ let ViewerComponent = class ViewerComponent {
     }
     ngOnInit() {
         this.http
-            .get('https://ysmartdata.whymob.dev/get/actor-frames/' + this.id)
+            .get('https://ysmartdata.whymob.dev/get/session/' + this.id)
             .subscribe((data) => {
-            this.totalFrames = data.actores[0].length / 18;
             this.sessionDuration = data.duration;
-            this.data.actores = data.actores;
+            this.data.frames = Object.entries(data.frames).sort();
+            this.totalFrames = this.data.frames.length;
+            this.data.dispensadores = data.dispensadores;
             //this.data.camaPoints = data.camaPoints;
             this.buildViewer();
             this.showSpinner = false;
@@ -454,28 +455,24 @@ let ViewerComponent = class ViewerComponent {
     }
     buildViewer() {
         let comp = this;
-        let camera, scene, renderer, actor, sessao, floor, cameraControls, clock, stats, gui;
+        let camera, scene, renderer, actors, sessao, floor, cameraControls, clock, stats, gui;
         let frameConfig, framePointsCount;
         let currentPoints = [];
-        let play = true;
         let paused = false;
         let fps = 15;
         let factor = 100;
         let currentFrame = 0;
-        let maxFrames;
         //Frames
-        var frame, camaPoints, dispensadores, detectedFloor;
+        var frames, camaPoints, dispensadores, detectedFloor;
         frameConfig = this.data.frameConfig;
-        frame = this.data.actores[0];
+        frames = this.data.frames;
         framePointsCount = frameConfig.framePointsCount;
         camaPoints = this.data.camaPoints;
         dispensadores = this.data.dispensadores;
         detectedFloor = this.data.floor;
-        maxFrames = this.data.actores[0].length / framePointsCount;
         init();
         animate();
         function init() {
-            console.log('Positions using', frameConfig.mode);
             // Set renderer
             renderer = new three__WEBPACK_IMPORTED_MODULE_3__.WebGLRenderer({ antialias: true });
             renderer.setSize(document.getElementById('viewer').offsetWidth, document.getElementById('viewer').offsetWidth / 2);
@@ -514,6 +511,7 @@ let ViewerComponent = class ViewerComponent {
             const dispensador1Geo = new three__WEBPACK_IMPORTED_MODULE_3__.BoxGeometry(25, 50, 25);
             const dispensador2Geo = new three__WEBPACK_IMPORTED_MODULE_3__.BoxGeometry(25, 50, 25);
             const dispensador1mesh = new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(dispensador1Geo, dispensadorMat);
+            console.log(dispensadores);
             let fixedDispensadorPoint = fixAxis(dispensadores[0]);
             dispensador1.position.set(fixedDispensadorPoint.x, fixedDispensadorPoint.y, fixedDispensadorPoint.z);
             dispensador1.add(dispensador1mesh);
@@ -532,11 +530,12 @@ let ViewerComponent = class ViewerComponent {
             const baseFloor = new three__WEBPACK_IMPORTED_MODULE_3__.Line(floorGeometry, floorLineineMaterial);
             //sessao.add(baseFloor);
             //Create actor group for animation
-            actor = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
-            actor.name = 'actor';
-            sessao.add(actor);
+            actors = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
+            actors.name = 'actors';
+            sessao.add(actors);
             scene.add(sessao);
-            newFrame2();
+            //newFrame2();
+            redrawFrame();
             //lights
             const dirLight1 = new three__WEBPACK_IMPORTED_MODULE_3__.DirectionalLight(0xffffff);
             dirLight1.position.set(1, 1, 1);
@@ -555,21 +554,10 @@ let ViewerComponent = class ViewerComponent {
             //initGui();
         }
         function fixAxis(point) {
-            if (frameConfig.mode == 'pixel') {
-                //Frame axis is top left, world is center bottom
-                //offset x half the frame withd to the left
-                let tempX = scale(point[0], 0, frameConfig.x, (frameConfig.x / 2) * -1, frameConfig.x / 2); //point[0] - (frameConfig.x /2);
-                let tempY = scale(point[1], 0, frameConfig.y, frameConfig.y, 0); //frameConfig.y-point[1]-frameConfig.camY;
-                let tempZ = scale(point[2], 0, frameConfig.z, frameConfig.x / 2, (frameConfig.x / 2) * -1);
-                return { x: tempX, y: tempY, z: tempZ, p: point[3] };
-                //return {x: point[0], y:point[1], z:point[2]*200, p:point[3]}
-            }
-            else {
-                let tempX = point.x * factor;
-                let tempY = point.y * factor * -1;
-                let tempZ = point.z * factor * -1;
-                return { x: tempX, y: tempY, z: tempZ, p: point.p };
-            }
+            let tempX = point.x * factor;
+            let tempY = point.y * factor * -1;
+            let tempZ = point.z * factor * -1;
+            return { x: tempX, y: tempY, z: tempZ, p: point.p };
         }
         function onWindowResize() {
             if (document.getElementById('viewer')) {
@@ -608,9 +596,9 @@ let ViewerComponent = class ViewerComponent {
         }
         function newFrame2() {
             //var selectedObject = scene.getObjectByName('actor');
-            actor.clear();
-            sessao.remove(actor);
-            let startIndex = (currentFrame % (frame.length / framePointsCount)) * framePointsCount;
+            actors.clear();
+            sessao.remove(actors);
+            let startIndex = (currentFrame % (frames.length / framePointsCount)) * framePointsCount;
             //console.log('/////////////////')
             //console.log('// FRAME',currentFrame%(frame.length/framePointsCount))
             //rebuild actor
@@ -625,18 +613,18 @@ let ViewerComponent = class ViewerComponent {
             });
             let pointColors = [];
             let points = [];
-            actor = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
-            actor.name = 'actor';
+            actors = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
+            actors.name = 'actors';
             for (let i = 0; i < 5; i++) {
-                let fixedPoint = fixAxis(frame[startIndex + i]);
-                pointColors.push(1 - 1 * frame[i][3], 1 * frame[i][3], 0);
+                let fixedPoint = fixAxis(frames[startIndex + i]);
+                pointColors.push(1 - 1 * frames[i][3], 1 * frames[i][3], 0);
                 points.push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
             }
             const headGeometry = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry();
             headGeometry.setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(points, 3));
             headGeometry.setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(pointColors, 3));
             let head = new three__WEBPACK_IMPORTED_MODULE_3__.Points(headGeometry, pointMaterial);
-            actor.add(head);
+            actors.add(head);
             const bodyPointsIndex = [
                 [10, 8, 6, 12, 14, 16],
                 [11, 9, 7, 13, 15, 17],
@@ -654,13 +642,13 @@ let ViewerComponent = class ViewerComponent {
                 lineGeometries[i] = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry().setFromPoints(linePoints[i]);
                 for (let j = 0; j < bodyPointsIndex[i].length; j++) {
                     //Skip point if it's above threshold
-                    if (frame[startIndex + (bodyPointsIndex[i][j] - 1)].p > frameConfig.minP) {
+                    if (frames[startIndex + (bodyPointsIndex[i][j] - 1)].p > frameConfig.minP) {
                         let fixedPoint = { x: 0, y: 0, z: 0, p: 0 };
                         let newPoint = { x: 0, y: 0, z: 0, p: 1 };
                         //if starting frame skip max velocity check
                         comp.statusMsg = comp.smoothing ? 'smoothing on' : 'smoothing off';
                         if (startIndex < framePointsCount || !comp.smoothing) {
-                            fixedPoint = fixAxis(frame[startIndex + (bodyPointsIndex[i][j] - 1)]);
+                            fixedPoint = fixAxis(frames[startIndex + (bodyPointsIndex[i][j] - 1)]);
                             currentPoints[bodyPointsIndex[i][j] - 1] = fixedPoint;
                         }
                         if (comp.paused) {
@@ -668,7 +656,7 @@ let ViewerComponent = class ViewerComponent {
                             fixedPoint = currentPoints[bodyPointsIndex[i][j] - 1];
                         }
                         else {
-                            fixedPoint = fixAxis(frame[startIndex + (bodyPointsIndex[i][j] - 1)]);
+                            fixedPoint = fixAxis(frames[startIndex + (bodyPointsIndex[i][j] - 1)]);
                             currentPoint = currentPoints[bodyPointsIndex[i][j] - 1];
                             newPoint.x = motionLimiter(fixedPoint.x, currentPoint.x, frameConfig.maxMovement);
                             newPoint.y = motionLimiter(fixedPoint.y, currentPoint.y, frameConfig.maxMovement);
@@ -685,25 +673,113 @@ let ViewerComponent = class ViewerComponent {
                 lineGeometries[i].setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(lineColors[i], 3));
                 lines[i] = new three__WEBPACK_IMPORTED_MODULE_3__.Line(lineGeometries[i], lineMaterial);
                 lines[i].computeLineDistances();
-                actor.add(lines[i]);
+                actors.add(lines[i]);
             }
-            sessao.add(actor);
+            sessao.add(actors);
             //scene.add(sessao)
             if (!comp.paused) {
-                currentFrame++;
+                comp.currentFrame++;
             }
             else {
                 comp.statusMsg = 'paused - ' + comp.statusMsg;
             }
             if (document.getElementById('viewer')) {
-                comp.timestamp = (currentFrame %
-                    (frame.length / framePointsCount)).toString();
+                comp.timestamp = (comp.currentFrame %
+                    (frames.length / framePointsCount)).toString();
                 setTimeout(newFrame2, 1000 / fps);
             }
             else {
                 console.log('newframe stopped');
             }
             //console.log(actor)
+        }
+        function redrawFrame() {
+            actors.clear();
+            sessao.remove(actors);
+            actors = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
+            actors.name = 'actors';
+            comp.frameTimestamp = frames[comp.currentFrame][0];
+            comp.statusMsg = comp.smoothing ? 'Suavização de velocidade on' : comp.distance ? 'Suavização de distância on' : comp.rawData ? 'Suavização off' : 'Suavização de velocidade off';
+            frames[comp.currentFrame][1].forEach((actor, index) => drawActors(actor, index));
+            sessao.add(actors);
+            if (!comp.paused) {
+                comp.currentFrame = ++comp.currentFrame % frames.length;
+            }
+            else {
+                comp.statusMsg = 'paused - ' + comp.statusMsg;
+            }
+            if (document.getElementById('viewer')) {
+                comp.timestamp = comp.currentFrame.toString();
+                setTimeout(redrawFrame, 1000 / fps);
+            }
+            else {
+                console.log('newframe stopped');
+            }
+        }
+        function drawActors(actor, index) {
+            //actor object received, add actor to actor Three Group
+            //console.log(actor)
+            const addedActor = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
+            const lineMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.LineBasicMaterial({
+                vertexColors: three__WEBPACK_IMPORTED_MODULE_3__.VertexColors,
+                linewidth: 40 // lineWidth not universally supported works with safari
+            });
+            const pointMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.PointsMaterial({
+                size: 2,
+                vertexColors: three__WEBPACK_IMPORTED_MODULE_3__.VertexColors
+            });
+            let p = 'p';
+            let pointColors = [];
+            let points = [];
+            for (let i = 1; i <= 5; i++) {
+                let fixedPoint = fixAxis(actor[p + i]);
+                pointColors.push(1 - 1 * fixedPoint.p, 1 * fixedPoint.p, 0);
+                points.push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
+            }
+            const headGeometry = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry();
+            headGeometry.setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(points, 3));
+            headGeometry.setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(pointColors, 3));
+            let head = new three__WEBPACK_IMPORTED_MODULE_3__.Points(headGeometry, pointMaterial);
+            addedActor.add(head);
+            const bodyPointsIndex = [
+                [10, 8, 6, 12, 14, 16],
+                [11, 9, 7, 13, 15, 17],
+                [6, 7],
+                [12, 13]
+            ];
+            let linePoints = [];
+            let lineGeometries = [];
+            let lineColors = [];
+            let lines = [];
+            let centralPoint = fixAxis(actor['ponto_central']);
+            for (let i = 0; i < bodyPointsIndex.length; i++) {
+                linePoints[i] = [];
+                lineColors[i] = [];
+                lineGeometries[i] = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry().setFromPoints(linePoints[i]);
+                for (let j = 0; j < bodyPointsIndex[i].length; j++) {
+                    //Skip point if it's above threshold
+                    if (actor[p + bodyPointsIndex[i][j]].p > frameConfig.minP) {
+                        //if starting frame skip max velocity check
+                        let fixedPoint = fixAxis(actor[p + bodyPointsIndex[i][j]]);
+                        if (comp.distance) {
+                            //Distance smoothing
+                            fixedPoint.x = motionLimiter(fixedPoint.x, centralPoint.x, comp.actorMaxArea.x);
+                            fixedPoint.y = motionLimiter(fixedPoint.y, centralPoint.y, comp.actorMaxArea.y);
+                            fixedPoint.z = motionLimiter(fixedPoint.z, centralPoint.z, comp.actorMaxArea.z);
+                        }
+                        else if (comp.smoothing) {
+                        }
+                        linePoints[i].push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
+                        lineColors[i].push(1 - 1 * fixedPoint.p, 1 * fixedPoint.p, 0);
+                    }
+                }
+                lineGeometries[i].setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(linePoints[i], 3));
+                lineGeometries[i].setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(lineColors[i], 3));
+                lines[i] = new three__WEBPACK_IMPORTED_MODULE_3__.Line(lineGeometries[i], lineMaterial);
+                lines[i].computeLineDistances();
+                actors.add(lines[i]);
+            }
+            actors.add(addedActor);
         }
         function scale(number, inMin, inMax, outMin, outMax) {
             return ((number - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
@@ -989,7 +1065,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<h3 class=\"text-center fw-bold text-uppercase\">\n  Sessão {{id}}\n</h3>\n<div class=\"position-relative\">\n  <div class=\"viewer-wrapper\" [class.blurred]=\"showSpinner\">\n    <div id=\"viewer\" class=\"position-relative\">\n      <span class=\"d-block end-0 pe-3 position-absolute pt-2 text-end top-0\">{{frameTimestamp}}</span>\n      <span class=\"d-block start-0 ps-3 position-absolute pt-2 text-start top-0\">{{timestamp}}</span>\n      <span class=\"bottom-0 d-block end-0 pb-2 pe-3 position-absolute text-end\">{{statusMsg}}</span>\n    </div>\n    <div class=\"row\" *ngIf=\"!showSpinner\">\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h4>Dados da sessão</h4> \n          <div>Sessão gravada em:</div>\n          <div class=\"fw-bolder\">{{sessionDate}} </div>\n          <div>com uma duração de:</div>\n          <div><span class=\"fw-bolder\">{{sessionDuration}}</span> e <span class=\"fw-bolder\">{{totalFrames}}</span> frames.</div>\n          <div>(Animation frame ID:<span class=\"fw-bolder\">{{requestId}}</span>)</div>\n      </div>\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h5>Dados de oportunidades</h5> \n          <p>Informação a adiccionar.</p> \n      </div>\n      <div class=\"col-md-4 col-sm-12 pt-4\">\n          <h5>Visualizador</h5>\n          <div class=\"form-check form-switch\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"smoothing\"\n              [ngModelOptions]=\"{standalone: true}\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Suavizador de pontos (corpo)</label>\n          </div>                             \n          <div class=\"mt-2\">\n              <div class=\"btn-group me-2\" role=\"group\" aria-label=\"First group\">\n                  <button type=\"button\" class=\"btn btn-outline-secondary\">\n                      <i class=\"bi bi-skip-backward-fill\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\" (click)=\"paused = !paused\">\n                      <i class=\"bi bi-play-fill\" *ngIf=\"paused\"></i>\n                      <i class=\"bi bi-pause-fill\" *ngIf=\"!paused\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\">\n                      <i class=\"bi bi-skip-forward-fill\"></i>\n                  </button>\n              </div>\n          </div>\n      </div>\n    </div>\n  </div>\n  <div class=\"position-absolute top-0 bottom-0 start-0 end-0\" *ngIf=\"showSpinner\">\n    <div class=\"spinner-wrapper pt-5\">\n      <img class=\"m-auto d-block mt-5\" style=\"width:60px\" src=\"https://whymob.dev/ysmart/loading.gif\">\n      <span class=\"m-auto d-block mt-2 w-50 text-center text-secondary\">Loading</span>\n    </div>\n  </div>\n</div>\n\n\n");
+/* harmony default export */ __webpack_exports__["default"] = ("<h3 class=\"text-center fw-bold text-uppercase\">\n  Sessão {{id}}\n</h3>\n<div class=\"position-relative\">\n  <div class=\"viewer-wrapper\" [class.blurred]=\"showSpinner\">\n    <div id=\"viewer\" class=\"position-relative\">\n      <span class=\"d-block end-0 pe-3 position-absolute pt-2 text-end top-0\">{{frameTimestamp}}</span>\n      <span class=\"d-block start-0 ps-3 position-absolute pt-2 text-start top-0\">{{timestamp}}</span>\n      <span class=\"bottom-0 d-block end-0 pb-2 pe-3 position-absolute text-end\">{{statusMsg}}</span>\n    </div>\n    <div class=\"row\" *ngIf=\"!showSpinner\">\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h4>Dados da sessão</h4> \n          <div>Sessão gravada em:</div>\n          <div class=\"fw-bolder\">{{sessionDate}} </div>\n          <div>com uma duração de:</div>\n          <div><span class=\"fw-bolder\">{{sessionDuration}}</span> e <span class=\"fw-bolder\">{{totalFrames}}</span> frames.</div>\n          <div>(Animation frame ID:<span class=\"fw-bolder\">{{requestId}}</span>)</div>\n      </div>\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h5>Dados de oportunidades</h5> \n          <p>Informação a adiccionar.</p>\n          <h6>Playback</h6>\n          <div class=\"mt-2\">\n              <div class=\"btn-group me-2\" role=\"group\" aria-label=\"First group\">\n                  <button type=\"button\" class=\"btn btn-outline-secondary\"(click)=\"currentFrame = (currentFrame == 0)? totalFrames-1 : currentFrame -1 \">\n                      <i class=\"bi bi-skip-backward-fill\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\" (click)=\"paused = !paused\">\n                      <i class=\"bi bi-play-fill\" *ngIf=\"paused\"></i>\n                      <i class=\"bi bi-pause-fill\" *ngIf=\"!paused\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\" (click)=\"currentFrame = (currentFrame + 1)% totalFrames\">\n                      <i class=\"bi bi-skip-forward-fill\"></i>\n                  </button>\n              </div>\n          </div>\n      </div>\n      <div class=\"col-md-4 col-sm-12 pt-4\">\n          <h5>Visualizador</h5>\n          <h6>Estratégia de suavização</h6>\n          <div class=\"form-check form-switch\" *ngIf=\"false\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"smoothing\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"distance = !smoothing; rawData = false\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Velocidade max. (corpo)</label>\n          </div> \n          <div class=\"form-check form-switch\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"distance\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"smoothing = false; rawData = !distance\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Distância Central (corpo)</label>\n          </div>  \n          <div class=\"form-check form-switch\" *ngIf=\"false\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"rawData\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"distance = !rawData; smoothing = false\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Sem suavização</label>\n          </div>\n          <div *ngIf=\"distance\">\n            <label for=\"customRange3\">Limites de distância</label><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"20\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.x\" id=\"customRange3\">\n            <span> x: {{actorMaxArea.x}}</span><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"202\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.y\" id=\"customRange3\">\n            <span> y: {{actorMaxArea.y}}</span><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"20\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.z\" id=\"customRange3\">\n            <span> z: {{actorMaxArea.z}}</span>\n          </div>\n      </div>\n    </div>\n  </div>\n  <div class=\"position-absolute top-0 bottom-0 start-0 end-0\" *ngIf=\"showSpinner\">\n    <div class=\"spinner-wrapper pt-5\">\n      <img class=\"m-auto d-block mt-5\" style=\"width:60px\" src=\"https://whymob.dev/ysmart/loading.gif\">\n      <span class=\"m-auto d-block mt-2 w-50 text-center text-secondary\">Loading</span>\n    </div>\n  </div>\n</div>\n\n\n");
 
 /***/ })
 

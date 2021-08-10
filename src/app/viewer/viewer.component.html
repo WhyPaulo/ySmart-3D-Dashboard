@@ -19,28 +19,49 @@
       </div>
       <div class="col-md-4 col-sm-6 pt-4">
           <h5>Dados de oportunidades</h5> 
-          <p>Informação a adiccionar.</p> 
-      </div>
-      <div class="col-md-4 col-sm-12 pt-4">
-          <h5>Visualizador</h5>
-          <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" [(ngModel)]="smoothing"
-              [ngModelOptions]="{standalone: true}">
-              <label class="form-check-label" for="flexSwitchCheckDefault">Suavizador de pontos (corpo)</label>
-          </div>                             
+          <p>Informação a adiccionar.</p>
+          <h6>Playback</h6>
           <div class="mt-2">
               <div class="btn-group me-2" role="group" aria-label="First group">
-                  <button type="button" class="btn btn-outline-secondary">
+                  <button type="button" class="btn btn-outline-secondary"(click)="currentFrame = (currentFrame == 0)? totalFrames-1 : currentFrame -1 ">
                       <i class="bi bi-skip-backward-fill"></i>
                   </button>
                   <button type="button" class="btn btn-outline-secondary" (click)="paused = !paused">
                       <i class="bi bi-play-fill" *ngIf="paused"></i>
                       <i class="bi bi-pause-fill" *ngIf="!paused"></i>
                   </button>
-                  <button type="button" class="btn btn-outline-secondary">
+                  <button type="button" class="btn btn-outline-secondary" (click)="currentFrame = (currentFrame + 1)% totalFrames">
                       <i class="bi bi-skip-forward-fill"></i>
                   </button>
               </div>
+          </div>
+      </div>
+      <div class="col-md-4 col-sm-12 pt-4">
+          <h5>Visualizador</h5>
+          <h6>Estratégia de suavização</h6>
+          <div class="form-check form-switch" *ngIf="false">
+              <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" [(ngModel)]="smoothing"
+              [ngModelOptions]="{standalone: true}" (change)="distance = !smoothing; rawData = false">
+              <label class="form-check-label" for="flexSwitchCheckDefault">Velocidade max. (corpo)</label>
+          </div> 
+          <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" [(ngModel)]="distance"
+              [ngModelOptions]="{standalone: true}" (change)="smoothing = false; rawData = !distance">
+              <label class="form-check-label" for="flexSwitchCheckDefault">Distância Central (corpo)</label>
+          </div>  
+          <div class="form-check form-switch" *ngIf="false">
+              <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" [(ngModel)]="rawData"
+              [ngModelOptions]="{standalone: true}" (change)="distance = !rawData; smoothing = false">
+              <label class="form-check-label" for="flexSwitchCheckDefault">Sem suavização</label>
+          </div>
+          <div *ngIf="distance">
+            <label for="customRange3">Limites de distância</label><br>
+            <input type="range" class="custom-range" min="0" max="20" step="0.5" [(ngModel)]="actorMaxArea.x" id="customRange3">
+            <span> x: {{actorMaxArea.x}}</span><br>
+            <input type="range" class="custom-range" min="0" max="202" step="0.5" [(ngModel)]="actorMaxArea.y" id="customRange3">
+            <span> y: {{actorMaxArea.y}}</span><br>
+            <input type="range" class="custom-range" min="0" max="20" step="0.5" [(ngModel)]="actorMaxArea.z" id="customRange3">
+            <span> z: {{actorMaxArea.z}}</span>
           </div>
       </div>
     </div>
