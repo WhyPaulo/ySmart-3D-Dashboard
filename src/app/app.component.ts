@@ -7,4 +7,5 @@ import { Component, VERSION } from '@angular/core';
 })
 export class AppComponent {
   title = '3D ySmart Dashboard'; //VERSION.major
+  v = '2.0.1';
 }

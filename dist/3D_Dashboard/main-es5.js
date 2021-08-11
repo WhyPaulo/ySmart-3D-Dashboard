@@ -170,6 +170,8 @@
         _classCallCheck(this, AppComponent);
 
         this.title = '3D ySmart Dashboard'; //VERSION.major
+
+        this.v = '2.0.1';
       };
 
       _AppComponent = (0, tslib__WEBPACK_IMPORTED_MODULE_2__.__decorate)([(0, _angular_core__WEBPACK_IMPORTED_MODULE_3__.Component)({
@@ -846,8 +848,7 @@
               actors = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
               actors.name = 'actors';
               sessao.add(actors);
-              scene.add(sessao); //newFrame2();
-
+              scene.add(sessao);
               redrawFrame(); //lights
 
               var dirLight1 = new three__WEBPACK_IMPORTED_MODULE_3__.DirectionalLight(0xffffff);
@@ -857,13 +858,9 @@
               dirLight2.position.set(-1, -1, -1);
               scene.add(dirLight2);
               var ambientLight = new three__WEBPACK_IMPORTED_MODULE_3__.AmbientLight(0x222222);
-              scene.add(ambientLight); //
-
+              scene.add(ambientLight);
               window.removeEventListener('resize', onWindowResize);
-              window.addEventListener('resize', onWindowResize); //stats = new Stats();
-              //stats.domElement.style.position = 'absolute';
-              //document.getElementById('viewer').appendChild(stats.dom);
-              //initGui();
+              window.addEventListener('resize', onWindowResize);
             }
 
             function fixAxis(point) {
@@ -913,123 +910,6 @@
             function render() {
               //console.log(this.timestamp)
               renderer.render(scene, camera);
-            }
-
-            function newFrame2() {
-              //var selectedObject = scene.getObjectByName('actor');
-              actors.clear();
-              sessao.remove(actors);
-              var startIndex = currentFrame % (frames.length / framePointsCount) * framePointsCount; //console.log('/////////////////')
-              //console.log('// FRAME',currentFrame%(frame.length/framePointsCount))
-              //rebuild actor
-              //create a blue LineBasicMaterial
-
-              var lineMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.LineBasicMaterial({
-                vertexColors: three__WEBPACK_IMPORTED_MODULE_3__.VertexColors,
-                linewidth: 40 // lineWidth not universally supported works with safari
-
-              });
-              var pointMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.PointsMaterial({
-                size: 2,
-                vertexColors: three__WEBPACK_IMPORTED_MODULE_3__.VertexColors
-              });
-              var pointColors = [];
-              var points = [];
-              actors = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
-              actors.name = 'actors';
-
-              for (var i = 0; i < 5; i++) {
-                var fixedPoint = fixAxis(frames[startIndex + i]);
-                pointColors.push(1 - 1 * frames[i][3], 1 * frames[i][3], 0);
-                points.push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
-              }
-
-              var headGeometry = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry();
-              headGeometry.setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(points, 3));
-              headGeometry.setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(pointColors, 3));
-              var head = new three__WEBPACK_IMPORTED_MODULE_3__.Points(headGeometry, pointMaterial);
-              actors.add(head);
-              var bodyPointsIndex = [[10, 8, 6, 12, 14, 16], [11, 9, 7, 13, 15, 17], [6, 7], [12, 13]];
-              var linePoints = [];
-              var lineGeometries = [];
-              var lineColors = [];
-              var lines = [];
-              var currentPoint;
-
-              for (var _i = 0; _i < bodyPointsIndex.length; _i++) {
-                linePoints[_i] = [];
-                lineColors[_i] = [];
-                lineGeometries[_i] = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry().setFromPoints(linePoints[_i]);
-
-                for (var j = 0; j < bodyPointsIndex[_i].length; j++) {
-                  //Skip point if it's above threshold
-                  if (frames[startIndex + (bodyPointsIndex[_i][j] - 1)].p > frameConfig.minP) {
-                    var _fixedPoint = {
-                      x: 0,
-                      y: 0,
-                      z: 0,
-                      p: 0
-                    };
-                    var newPoint = {
-                      x: 0,
-                      y: 0,
-                      z: 0,
-                      p: 1
-                    }; //if starting frame skip max velocity check
-
-                    comp.statusMsg = comp.smoothing ? 'smoothing on' : 'smoothing off';
-
-                    if (startIndex < framePointsCount || !comp.smoothing) {
-                      _fixedPoint = fixAxis(frames[startIndex + (bodyPointsIndex[_i][j] - 1)]);
-                      currentPoints[bodyPointsIndex[_i][j] - 1] = _fixedPoint;
-                    }
-
-                    if (comp.paused) {
-                      comp.statusMsg = 'limiter drift disabled - ' + comp.statusMsg;
-                      _fixedPoint = currentPoints[bodyPointsIndex[_i][j] - 1];
-                    } else {
-                      _fixedPoint = fixAxis(frames[startIndex + (bodyPointsIndex[_i][j] - 1)]);
-                      currentPoint = currentPoints[bodyPointsIndex[_i][j] - 1];
-                      newPoint.x = motionLimiter(_fixedPoint.x, currentPoint.x, frameConfig.maxMovement);
-                      newPoint.y = motionLimiter(_fixedPoint.y, currentPoint.y, frameConfig.maxMovement);
-                      newPoint.z = motionLimiter(_fixedPoint.z, currentPoint.z, frameConfig.maxMovement);
-                      newPoint.p = _fixedPoint.p;
-                      _fixedPoint = newPoint;
-                      currentPoints[bodyPointsIndex[_i][j] - 1] = _fixedPoint;
-                    }
-
-                    linePoints[_i].push(_fixedPoint.x, _fixedPoint.y, _fixedPoint.z);
-
-                    lineColors[_i].push(1 - 1 * _fixedPoint.p, 1 * _fixedPoint.p, 0);
-                  }
-                }
-
-                lineGeometries[_i].setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(linePoints[_i], 3));
-
-                lineGeometries[_i].setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(lineColors[_i], 3));
-
-                lines[_i] = new three__WEBPACK_IMPORTED_MODULE_3__.Line(lineGeometries[_i], lineMaterial);
-
-                lines[_i].computeLineDistances();
-
-                actors.add(lines[_i]);
-              }
-
-              sessao.add(actors); //scene.add(sessao)
-
-              if (!comp.paused) {
-                comp.currentFrame++;
-              } else {
-                comp.statusMsg = 'paused - ' + comp.statusMsg;
-              }
-
-              if (document.getElementById('viewer')) {
-                comp.timestamp = (comp.currentFrame % (frames.length / framePointsCount)).toString();
-                setTimeout(newFrame2, 1000 / fps);
-              } else {
-                console.log('newframe stopped');
-              } //console.log(actor)
-
             }
 
             function redrawFrame() {
@@ -1093,39 +973,39 @@
               var lines = [];
               var centralPoint = fixAxis(actor['ponto_central']);
 
-              for (var _i2 = 0; _i2 < bodyPointsIndex.length; _i2++) {
-                linePoints[_i2] = [];
-                lineColors[_i2] = [];
-                lineGeometries[_i2] = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry().setFromPoints(linePoints[_i2]);
+              for (var _i = 0; _i < bodyPointsIndex.length; _i++) {
+                linePoints[_i] = [];
+                lineColors[_i] = [];
+                lineGeometries[_i] = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry().setFromPoints(linePoints[_i]);
 
-                for (var j = 0; j < bodyPointsIndex[_i2].length; j++) {
+                for (var j = 0; j < bodyPointsIndex[_i].length; j++) {
                   //Skip point if it's above threshold
-                  if (actor[p + bodyPointsIndex[_i2][j]].p > frameConfig.minP) {
+                  if (actor[p + bodyPointsIndex[_i][j]].p > frameConfig.minP) {
                     //if starting frame skip max velocity check
-                    var _fixedPoint2 = fixAxis(actor[p + bodyPointsIndex[_i2][j]]);
+                    var _fixedPoint = fixAxis(actor[p + bodyPointsIndex[_i][j]]);
 
                     if (comp.distance) {
                       //Distance smoothing
-                      _fixedPoint2.x = motionLimiter(_fixedPoint2.x, centralPoint.x, comp.actorMaxArea.x);
-                      _fixedPoint2.y = motionLimiter(_fixedPoint2.y, centralPoint.y, comp.actorMaxArea.y);
-                      _fixedPoint2.z = motionLimiter(_fixedPoint2.z, centralPoint.z, comp.actorMaxArea.z);
+                      _fixedPoint.x = motionLimiter(_fixedPoint.x, centralPoint.x, comp.actorMaxArea.x);
+                      _fixedPoint.y = motionLimiter(_fixedPoint.y, centralPoint.y, comp.actorMaxArea.y);
+                      _fixedPoint.z = motionLimiter(_fixedPoint.z, centralPoint.z, comp.actorMaxArea.z);
                     } else if (comp.smoothing) {}
 
-                    linePoints[_i2].push(_fixedPoint2.x, _fixedPoint2.y, _fixedPoint2.z);
+                    linePoints[_i].push(_fixedPoint.x, _fixedPoint.y, _fixedPoint.z);
 
-                    lineColors[_i2].push(1 - 1 * _fixedPoint2.p, 1 * _fixedPoint2.p, 0);
+                    lineColors[_i].push(1 - 1 * _fixedPoint.p, 1 * _fixedPoint.p, 0);
                   }
                 }
 
-                lineGeometries[_i2].setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(linePoints[_i2], 3));
+                lineGeometries[_i].setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(linePoints[_i], 3));
 
-                lineGeometries[_i2].setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(lineColors[_i2], 3));
+                lineGeometries[_i].setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(lineColors[_i], 3));
 
-                lines[_i2] = new three__WEBPACK_IMPORTED_MODULE_3__.Line(lineGeometries[_i2], lineMaterial);
+                lines[_i] = new three__WEBPACK_IMPORTED_MODULE_3__.Line(lineGeometries[_i], lineMaterial);
 
-                lines[_i2].computeLineDistances();
+                lines[_i].computeLineDistances();
 
-                actors.add(lines[_i2]);
+                actors.add(lines[_i]);
               }
 
               actors.add(addedActor);
@@ -1394,7 +1274,7 @@
       /* harmony default export */
 
 
-      __webpack_exports__["default"] = "<h1 class=\"text-center\">{{title}}</h1>\n<hr />\n<nav class=\"text-center\">\n  <a routerLink=\"/\">Todas as sessões</a>\n  &nbsp;\n  <a routerLink=\"/small\">Sessões de curta duração</a>\n  &nbsp;\n  <a routerLink=\"/processed\">Sessões processadas</a>\n</nav>\n<hr />\n<router-outlet></router-outlet>\n<footer class=\"fixed-bottom p-2 text-end text-muted\" style=\"background-color: rgba(255, 255, 255, 0.6);\">powered by whymob</footer>";
+      __webpack_exports__["default"] = "<h1 class=\"text-center\">{{title}}</h1>\n<hr />\n<nav class=\"text-center\">\n  <a routerLink=\"/\">Todas as sessões</a>\n  &nbsp;\n  <a routerLink=\"/small\">Sessões de curta duração</a>\n  &nbsp;\n  <a routerLink=\"/processed\">Sessões processadas</a>\n</nav>\n<hr />\n<router-outlet></router-outlet>\n<footer class=\"fixed-bottom p-2 text-end text-muted\" style=\"background-color: rgba(255, 255, 255, 0.6);\">powered by whymob (v{{v}})</footer>";
       /***/
     },
 

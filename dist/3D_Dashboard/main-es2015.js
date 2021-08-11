@@ -99,6 +99,7 @@ __webpack_require__.r(__webpack_exports__);
 let AppComponent = class AppComponent {
     constructor() {
         this.title = '3D ySmart Dashboard'; //VERSION.major
+        this.v = '2.0.1';
     }
 };
 AppComponent = (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__decorate)([
@@ -534,7 +535,6 @@ let ViewerComponent = class ViewerComponent {
             actors.name = 'actors';
             sessao.add(actors);
             scene.add(sessao);
-            //newFrame2();
             redrawFrame();
             //lights
             const dirLight1 = new three__WEBPACK_IMPORTED_MODULE_3__.DirectionalLight(0xffffff);
@@ -545,13 +545,8 @@ let ViewerComponent = class ViewerComponent {
             scene.add(dirLight2);
             const ambientLight = new three__WEBPACK_IMPORTED_MODULE_3__.AmbientLight(0x222222);
             scene.add(ambientLight);
-            //
             window.removeEventListener('resize', onWindowResize);
             window.addEventListener('resize', onWindowResize);
-            //stats = new Stats();
-            //stats.domElement.style.position = 'absolute';
-            //document.getElementById('viewer').appendChild(stats.dom);
-            //initGui();
         }
         function fixAxis(point) {
             let tempX = point.x * factor;
@@ -593,105 +588,6 @@ let ViewerComponent = class ViewerComponent {
         function render() {
             //console.log(this.timestamp)
             renderer.render(scene, camera);
-        }
-        function newFrame2() {
-            //var selectedObject = scene.getObjectByName('actor');
-            actors.clear();
-            sessao.remove(actors);
-            let startIndex = (currentFrame % (frames.length / framePointsCount)) * framePointsCount;
-            //console.log('/////////////////')
-            //console.log('// FRAME',currentFrame%(frame.length/framePointsCount))
-            //rebuild actor
-            //create a blue LineBasicMaterial
-            const lineMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.LineBasicMaterial({
-                vertexColors: three__WEBPACK_IMPORTED_MODULE_3__.VertexColors,
-                linewidth: 40 // lineWidth not universally supported works with safari
-            });
-            const pointMaterial = new three__WEBPACK_IMPORTED_MODULE_3__.PointsMaterial({
-                size: 2,
-                vertexColors: three__WEBPACK_IMPORTED_MODULE_3__.VertexColors
-            });
-            let pointColors = [];
-            let points = [];
-            actors = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
-            actors.name = 'actors';
-            for (let i = 0; i < 5; i++) {
-                let fixedPoint = fixAxis(frames[startIndex + i]);
-                pointColors.push(1 - 1 * frames[i][3], 1 * frames[i][3], 0);
-                points.push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
-            }
-            const headGeometry = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry();
-            headGeometry.setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(points, 3));
-            headGeometry.setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(pointColors, 3));
-            let head = new three__WEBPACK_IMPORTED_MODULE_3__.Points(headGeometry, pointMaterial);
-            actors.add(head);
-            const bodyPointsIndex = [
-                [10, 8, 6, 12, 14, 16],
-                [11, 9, 7, 13, 15, 17],
-                [6, 7],
-                [12, 13]
-            ];
-            let linePoints = [];
-            let lineGeometries = [];
-            let lineColors = [];
-            let lines = [];
-            let currentPoint;
-            for (let i = 0; i < bodyPointsIndex.length; i++) {
-                linePoints[i] = [];
-                lineColors[i] = [];
-                lineGeometries[i] = new three__WEBPACK_IMPORTED_MODULE_3__.BufferGeometry().setFromPoints(linePoints[i]);
-                for (let j = 0; j < bodyPointsIndex[i].length; j++) {
-                    //Skip point if it's above threshold
-                    if (frames[startIndex + (bodyPointsIndex[i][j] - 1)].p > frameConfig.minP) {
-                        let fixedPoint = { x: 0, y: 0, z: 0, p: 0 };
-                        let newPoint = { x: 0, y: 0, z: 0, p: 1 };
-                        //if starting frame skip max velocity check
-                        comp.statusMsg = comp.smoothing ? 'smoothing on' : 'smoothing off';
-                        if (startIndex < framePointsCount || !comp.smoothing) {
-                            fixedPoint = fixAxis(frames[startIndex + (bodyPointsIndex[i][j] - 1)]);
-                            currentPoints[bodyPointsIndex[i][j] - 1] = fixedPoint;
-                        }
-                        if (comp.paused) {
-                            comp.statusMsg = 'limiter drift disabled - ' + comp.statusMsg;
-                            fixedPoint = currentPoints[bodyPointsIndex[i][j] - 1];
-                        }
-                        else {
-                            fixedPoint = fixAxis(frames[startIndex + (bodyPointsIndex[i][j] - 1)]);
-                            currentPoint = currentPoints[bodyPointsIndex[i][j] - 1];
-                            newPoint.x = motionLimiter(fixedPoint.x, currentPoint.x, frameConfig.maxMovement);
-                            newPoint.y = motionLimiter(fixedPoint.y, currentPoint.y, frameConfig.maxMovement);
-                            newPoint.z = motionLimiter(fixedPoint.z, currentPoint.z, frameConfig.maxMovement);
-                            newPoint.p = fixedPoint.p;
-                            fixedPoint = newPoint;
-                            currentPoints[bodyPointsIndex[i][j] - 1] = fixedPoint;
-                        }
-                        linePoints[i].push(fixedPoint.x, fixedPoint.y, fixedPoint.z);
-                        lineColors[i].push(1 - 1 * fixedPoint.p, 1 * fixedPoint.p, 0);
-                    }
-                }
-                lineGeometries[i].setAttribute('position', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(linePoints[i], 3));
-                lineGeometries[i].setAttribute('color', new three__WEBPACK_IMPORTED_MODULE_3__.Float32BufferAttribute(lineColors[i], 3));
-                lines[i] = new three__WEBPACK_IMPORTED_MODULE_3__.Line(lineGeometries[i], lineMaterial);
-                lines[i].computeLineDistances();
-                actors.add(lines[i]);
-            }
-            sessao.add(actors);
-            //scene.add(sessao)
-            if (!comp.paused) {
-                comp.currentFrame++;
-            }
-            else {
-                comp.statusMsg = 'paused - ' + comp.statusMsg;
-            }
-            if (document.getElementById('viewer')) {
-                comp.timestamp = (comp.currentFrame %
-                    (frames.length / framePointsCount)).toString();
-                setTimeout(newFrame2, 1000 / fps);
-            }
-            else {
-                console.log('newframe stopped');
-            }
-            //console.log(actor)
         }
         function redrawFrame() {
             actors.clear();
@@ -1017,7 +913,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<h1 class=\"text-center\">{{title}}</h1>\n<hr />\n<nav class=\"text-center\">\n  <a routerLink=\"/\">Todas as sessões</a>\n  &nbsp;\n  <a routerLink=\"/small\">Sessões de curta duração</a>\n  &nbsp;\n  <a routerLink=\"/processed\">Sessões processadas</a>\n</nav>\n<hr />\n<router-outlet></router-outlet>\n<footer class=\"fixed-bottom p-2 text-end text-muted\" style=\"background-color: rgba(255, 255, 255, 0.6);\">powered by whymob</footer>");
+/* harmony default export */ __webpack_exports__["default"] = ("<h1 class=\"text-center\">{{title}}</h1>\n<hr />\n<nav class=\"text-center\">\n  <a routerLink=\"/\">Todas as sessões</a>\n  &nbsp;\n  <a routerLink=\"/small\">Sessões de curta duração</a>\n  &nbsp;\n  <a routerLink=\"/processed\">Sessões processadas</a>\n</nav>\n<hr />\n<router-outlet></router-outlet>\n<footer class=\"fixed-bottom p-2 text-end text-muted\" style=\"background-color: rgba(255, 255, 255, 0.6);\">powered by whymob (v{{v}})</footer>");
 
 /***/ }),
 
