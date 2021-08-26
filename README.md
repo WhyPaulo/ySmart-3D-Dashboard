@@ -1,3 +1,3 @@
-# angular-ivy-nimbpb
+# ySmart 3d Dashboard
 
-[Edit on StackBlitz ⚡️](https://stackblitz.com/edit/angular-ivy-nimbpb)
+Three.js visualizer of captured data
