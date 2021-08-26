@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-processed-sessions',
@@ -6,56 +7,27 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./processed-sessions.component.css']
 })
 export class ProcessedSessionsComponent implements OnInit {
-  sessions: any;
-  constructor() {
-    this.sessions = [
-      {
-        session: 1625843694,
-        startTime: 1625843694,
-        endTime: 1625843710,
-        duration: '00:00:16',
-        frames: 263
-      },
-      {
-        session: 1625844273,
-        startTime: 1625844273,
-        endTime: 1625844455,
-        duration: '00:03:02',
-        frames: 4748
-      },
-      {
-        session: 1626265938,
-        startTime: 1626265938,
-        endTime: 1626265952,
-        duration: '00:00:14',
-        frames: 182
-      }
-    ];
-    this.sessions.forEach(session => {
-      session.startDate = new Date(session.startTime * 1000).toLocaleString(
-        'pt-PT'
-      );
-      session.endDate = new Date(session.endTime * 1000).toLocaleString(
-        'pt-PT'
-      );
-    });
-  }
+  public sessions: any;
+  public showSpinner = true;
+
+  constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    this.loadJsFile(
-      'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js',
-      'jquery'
-    );
+    this.http
+      .get('https://ysmartdata.whymob.dev/get/filtred-sessions')
+      .subscribe(Response => {
+        // If response comes
+        this.sessions = Response;
+        this.sessions.forEach(session => {
+          session.startDate = new Date(session.startTime * 1000).toLocaleString(
+            'pt-PT'
+          );
+          session.endDate = new Date(session.endTime * 1000).toLocaleString(
+            'pt-PT'
+          );
+        });
+        this.showSpinner = false;
+      });
   }
-  public loadJsFile(url, id) {
-    let node = document.createElement('script');
-    node.src = url;
-    node.type = 'text/javascript';
-    node.id = id;
-    if (document.getElementById(id)) {
-      console.log('script already present');
-    } else {
-      //document.getElementsByTagName('head')[0].appendChild(node);
-    }
-  }
+  
 }

@@ -1,3 +1,7 @@
+2021-08-11
+Adicionado velocidade de captura e de reprodução
+Timestamp visivel apenas quando reprodução parada
+Adicionado controle de FPS de reprodução
 2021-08-10
 Sessões multi-actor implementadas
 Botões "Frame Seguinte/Anterior" implementados

@@ -1,12 +1,15 @@
-<h1 class="text-center">{{title}}</h1>
-<hr />
-<nav class="text-center">
-  <a routerLink="/">Todas as sessões</a>
-  &nbsp;
-  <a routerLink="/small">Sessões de curta duração</a>
-  &nbsp;
-  <a routerLink="/processed">Sessões processadas</a>
-</nav>
+<div class="row">
+  <div class="col-md-6 col-sm-12"><h1 class="text-left">{{title}}</h1></div>
+  <div class="col-md-6 col-sm-12 d-flex justify-content-md-end justify-content-sm-between align-items-md-center align-items-sm-start">
+    <nav class="text-right">
+      <a routerLink="/">Todas as sessões</a>
+      &nbsp;
+      <a routerLink="/small">Sessões de curta duração</a>
+      &nbsp;
+      <a routerLink="/processed">Sessões processadas</a>
+    </nav>
+  </div>
+</div>
 <hr />
 <router-outlet></router-outlet>
 <footer class="fixed-bottom p-2 text-end text-muted" style="background-color: rgba(255, 255, 255, 0.6);">powered by whymob (<a href="./assets/release-notes.txt">v{{v}}</a>)</footer>

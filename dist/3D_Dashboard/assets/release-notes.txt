@@ -1,1 +1,11 @@
-test
+2021-08-11
+Adicionado velocidade de captura e de reprodução
+Timestamp visivel apenas quando reprodução parada
+Adicionado controle de FPS de reprodução
+2021-08-10
+Sessões multi-actor implementadas
+Botões "Frame Seguinte/Anterior" implementados
+Desativada suavização por velocidade (apenas possível implementar se actores estiverem identificados)
+Implementada suavização ao pontos do corpo dos actores baseada em distância ao ponto central
+Implementado limites de distância independentes por eixo e possivel configuração no UI
+Pequenos arranjos na interface e code refactoring

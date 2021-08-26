@@ -18,9 +18,12 @@ export class ViewerComponent implements OnInit {
   public sessionDuration: any;
   public totalFrames: number;
   public showSpinner = true;
+  public fps = 15;
   public timestamp = '0';
   public currentFrame = 0;
-  public frameTimestamp = '0';
+  public frameTimestamp = 0;
+  public captureFpsStatus = '0';
+  public playbackFpsStatus = '0';
   public requestId: number;
   public paused = false;
   public smoothing = false;
@@ -90,13 +93,12 @@ export class ViewerComponent implements OnInit {
       floor,
       cameraControls,
       clock,
+      cfps,
       stats,
       gui;
 
     let frameConfig, framePointsCount;
     let currentPoints = [];
-    let paused = false;
-    let fps = 15;
     let factor = 100;
     let currentFrame = 0;
     //Frames
@@ -287,7 +289,17 @@ export class ViewerComponent implements OnInit {
 
       actors = new THREE.Group();
       actors.name = 'actors';
+      (comp.frameTimestamp == 0)? comp.frameTimestamp = frames[comp.currentFrame][0]: null;
+      if(comp.frameTimestamp < frames[comp.currentFrame][0]){
+        cfps = String(Math.round(frames[comp.currentFrame][0]- comp.frameTimestamp) ).padStart(3, '0')
+      } else if(comp.frameTimestamp > frames[comp.currentFrame][0]){
+        cfps = String(Math.round(comp.frameTimestamp - frames[comp.currentFrame][0]) ).padStart(3, '0')
+      }
+      comp.captureFpsStatus = 'Captura a '+cfps+' fps'
+      comp.playbackFpsStatus = 'Reprodução a '+comp.fps+' fps'
+      //comp.frameTimestampStatus += comp.frameTimestamp +'-'+ frames[comp.currentFrame][0]
       comp.frameTimestamp = frames[comp.currentFrame][0]
+
       comp.statusMsg = comp.smoothing?'Suavização de velocidade on': comp.distance?'Suavização de distância on':comp.rawData?'Suavização off':'Suavização de velocidade off';
       frames[comp.currentFrame][1].forEach((actor: object, index: any) =>
         drawActors(actor, index)
@@ -302,7 +314,7 @@ export class ViewerComponent implements OnInit {
 
       if (document.getElementById('viewer')) {
         comp.timestamp = comp.currentFrame.toString();
-        setTimeout(redrawFrame, 1000 / fps);
+        setTimeout(redrawFrame, 1000 / comp.fps);
       } else {
         console.log('newframe stopped');
       }

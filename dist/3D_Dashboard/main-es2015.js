@@ -210,63 +210,40 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "ProcessedSessionsComponent": function() { return /* binding */ ProcessedSessionsComponent; }
 /* harmony export */ });
-/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! tslib */ 4762);
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! tslib */ 4762);
 /* harmony import */ var _raw_loader_processed_sessions_component_html__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! !raw-loader!./processed-sessions.component.html */ 4172);
 /* harmony import */ var _processed_sessions_component_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./processed-sessions.component.css */ 9217);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/core */ 7716);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/core */ 7716);
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common/http */ 1841);
+
 
 
 
 
 let ProcessedSessionsComponent = class ProcessedSessionsComponent {
-    constructor() {
-        this.sessions = [
-            {
-                session: 1625843694,
-                startTime: 1625843694,
-                endTime: 1625843710,
-                duration: '00:00:16',
-                frames: 263
-            },
-            {
-                session: 1625844273,
-                startTime: 1625844273,
-                endTime: 1625844455,
-                duration: '00:03:02',
-                frames: 4748
-            },
-            {
-                session: 1626265938,
-                startTime: 1626265938,
-                endTime: 1626265952,
-                duration: '00:00:14',
-                frames: 182
-            }
-        ];
-        this.sessions.forEach(session => {
-            session.startDate = new Date(session.startTime * 1000).toLocaleString('pt-PT');
-            session.endDate = new Date(session.endTime * 1000).toLocaleString('pt-PT');
-        });
+    constructor(http) {
+        this.http = http;
+        this.showSpinner = true;
     }
     ngOnInit() {
-        this.loadJsFile('https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js', 'jquery');
-    }
-    loadJsFile(url, id) {
-        let node = document.createElement('script');
-        node.src = url;
-        node.type = 'text/javascript';
-        node.id = id;
-        if (document.getElementById(id)) {
-            console.log('script already present');
-        }
-        else {
-            //document.getElementsByTagName('head')[0].appendChild(node);
-        }
+        this.http
+            .get('https://ysmartdata.whymob.dev/get/filtred-sessions')
+            .subscribe(Response => {
+            // If response comes
+            this.sessions = Response;
+            this.sessions.forEach(session => {
+                session.startDate = new Date(session.startTime * 1000).toLocaleString('pt-PT');
+                session.endDate = new Date(session.endTime * 1000).toLocaleString('pt-PT');
+            });
+            this.showSpinner = false;
+        });
     }
 };
-ProcessedSessionsComponent.ctorParameters = () => [];
-ProcessedSessionsComponent = (0,tslib__WEBPACK_IMPORTED_MODULE_2__.__decorate)([
-    (0,_angular_core__WEBPACK_IMPORTED_MODULE_3__.Component)({
+ProcessedSessionsComponent.ctorParameters = () => [
+    { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_2__.HttpClient }
+];
+ProcessedSessionsComponent = (0,tslib__WEBPACK_IMPORTED_MODULE_3__.__decorate)([
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_4__.Component)({
         selector: 'app-processed-sessions',
         template: _raw_loader_processed_sessions_component_html__WEBPACK_IMPORTED_MODULE_0__.default,
         styles: [_processed_sessions_component_css__WEBPACK_IMPORTED_MODULE_1__.default]
@@ -401,9 +378,12 @@ let ViewerComponent = class ViewerComponent {
         this._Activatedroute = _Activatedroute;
         this.http = http;
         this.showSpinner = true;
+        this.fps = 15;
         this.timestamp = '0';
         this.currentFrame = 0;
-        this.frameTimestamp = '0';
+        this.frameTimestamp = 0;
+        this.captureFpsStatus = '0';
+        this.playbackFpsStatus = '0';
         this.paused = false;
         this.smoothing = false;
         this.distance = true;
@@ -456,11 +436,9 @@ let ViewerComponent = class ViewerComponent {
     }
     buildViewer() {
         let comp = this;
-        let camera, scene, renderer, actors, sessao, floor, cameraControls, clock, stats, gui;
+        let camera, scene, renderer, actors, sessao, floor, cameraControls, clock, cfps, stats, gui;
         let frameConfig, framePointsCount;
         let currentPoints = [];
-        let paused = false;
-        let fps = 15;
         let factor = 100;
         let currentFrame = 0;
         //Frames
@@ -594,6 +572,16 @@ let ViewerComponent = class ViewerComponent {
             sessao.remove(actors);
             actors = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
             actors.name = 'actors';
+            (comp.frameTimestamp == 0) ? comp.frameTimestamp = frames[comp.currentFrame][0] : null;
+            if (comp.frameTimestamp < frames[comp.currentFrame][0]) {
+                cfps = String(Math.round(frames[comp.currentFrame][0] - comp.frameTimestamp)).padStart(3, '0');
+            }
+            else if (comp.frameTimestamp > frames[comp.currentFrame][0]) {
+                cfps = String(Math.round(comp.frameTimestamp - frames[comp.currentFrame][0])).padStart(3, '0');
+            }
+            comp.captureFpsStatus = 'Captura a ' + cfps + ' fps';
+            comp.playbackFpsStatus = 'Reprodução a ' + comp.fps + ' fps';
+            //comp.frameTimestampStatus += comp.frameTimestamp +'-'+ frames[comp.currentFrame][0]
             comp.frameTimestamp = frames[comp.currentFrame][0];
             comp.statusMsg = comp.smoothing ? 'Suavização de velocidade on' : comp.distance ? 'Suavização de distância on' : comp.rawData ? 'Suavização off' : 'Suavização de velocidade off';
             frames[comp.currentFrame][1].forEach((actor, index) => drawActors(actor, index));
@@ -606,7 +594,7 @@ let ViewerComponent = class ViewerComponent {
             }
             if (document.getElementById('viewer')) {
                 comp.timestamp = comp.currentFrame.toString();
-                setTimeout(redrawFrame, 1000 / fps);
+                setTimeout(redrawFrame, 1000 / comp.fps);
             }
             else {
                 console.log('newframe stopped');
@@ -913,7 +901,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<h1 class=\"text-center\">{{title}}</h1>\n<hr />\n<nav class=\"text-center\">\n  <a routerLink=\"/\">Todas as sessões</a>\n  &nbsp;\n  <a routerLink=\"/small\">Sessões de curta duração</a>\n  &nbsp;\n  <a routerLink=\"/processed\">Sessões processadas</a>\n</nav>\n<hr />\n<router-outlet></router-outlet>\n<footer class=\"fixed-bottom p-2 text-end text-muted\" style=\"background-color: rgba(255, 255, 255, 0.6);\">powered by whymob (v{{v}})</footer>");
+/* harmony default export */ __webpack_exports__["default"] = ("<div class=\"row\">\n  <div class=\"col-md-6 col-sm-12\"><h1 class=\"text-left\">{{title}}</h1></div>\n  <div class=\"col-md-6 col-sm-12 d-flex justify-content-md-end justify-content-sm-between align-items-md-center align-items-sm-start\">\n    <nav class=\"text-right\">\n      <a routerLink=\"/\">Todas as sessões</a>\n      &nbsp;\n      <a routerLink=\"/small\">Sessões de curta duração</a>\n      &nbsp;\n      <a routerLink=\"/processed\">Sessões processadas</a>\n    </nav>\n  </div>\n</div>\n<hr />\n<router-outlet></router-outlet>\n<footer class=\"fixed-bottom p-2 text-end text-muted\" style=\"background-color: rgba(255, 255, 255, 0.6);\">powered by whymob (<a href=\"./assets/release-notes.txt\">v{{v}}</a>)</footer>");
 
 /***/ }),
 
@@ -961,7 +949,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony default export */ __webpack_exports__["default"] = ("<h3 class=\"text-center fw-bold text-uppercase\">\n  Sessão {{id}}\n</h3>\n<div class=\"position-relative\">\n  <div class=\"viewer-wrapper\" [class.blurred]=\"showSpinner\">\n    <div id=\"viewer\" class=\"position-relative\">\n      <span class=\"d-block end-0 pe-3 position-absolute pt-2 text-end top-0\">{{frameTimestamp}}</span>\n      <span class=\"d-block start-0 ps-3 position-absolute pt-2 text-start top-0\">{{timestamp}}</span>\n      <span class=\"bottom-0 d-block end-0 pb-2 pe-3 position-absolute text-end\">{{statusMsg}}</span>\n    </div>\n    <div class=\"row\" *ngIf=\"!showSpinner\">\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h4>Dados da sessão</h4> \n          <div>Sessão gravada em:</div>\n          <div class=\"fw-bolder\">{{sessionDate}} </div>\n          <div>com uma duração de:</div>\n          <div><span class=\"fw-bolder\">{{sessionDuration}}</span> e <span class=\"fw-bolder\">{{totalFrames}}</span> frames.</div>\n          <div>(Animation frame ID:<span class=\"fw-bolder\">{{requestId}}</span>)</div>\n      </div>\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h5>Dados de oportunidades</h5> \n          <p>Informação a adiccionar.</p>\n          <h6>Playback</h6>\n          <div class=\"mt-2\">\n              <div class=\"btn-group me-2\" role=\"group\" aria-label=\"First group\">\n                  <button type=\"button\" class=\"btn btn-outline-secondary\"(click)=\"currentFrame = (currentFrame == 0)? totalFrames-1 : currentFrame -1 \">\n                      <i class=\"bi bi-skip-backward-fill\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\" (click)=\"paused = !paused\">\n                      <i class=\"bi bi-play-fill\" *ngIf=\"paused\"></i>\n                      <i class=\"bi bi-pause-fill\" *ngIf=\"!paused\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\" (click)=\"currentFrame = (currentFrame + 1)% totalFrames\">\n                      <i class=\"bi bi-skip-forward-fill\"></i>\n                  </button>\n              </div>\n          </div>\n      </div>\n      <div class=\"col-md-4 col-sm-12 pt-4\">\n          <h5>Visualizador</h5>\n          <h6>Estratégia de suavização</h6>\n          <div class=\"form-check form-switch\" *ngIf=\"false\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"smoothing\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"distance = !smoothing; rawData = false\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Velocidade max. (corpo)</label>\n          </div> \n          <div class=\"form-check form-switch\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"distance\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"smoothing = false; rawData = !distance\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Distância Central (corpo)</label>\n          </div>  \n          <div class=\"form-check form-switch\" *ngIf=\"false\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"rawData\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"distance = !rawData; smoothing = false\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Sem suavização</label>\n          </div>\n          <div *ngIf=\"distance\">\n            <label for=\"customRange3\">Limites de distância</label><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"20\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.x\" id=\"customRange3\">\n            <span> x: {{actorMaxArea.x}}</span><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"202\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.y\" id=\"customRange3\">\n            <span> y: {{actorMaxArea.y}}</span><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"20\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.z\" id=\"customRange3\">\n            <span> z: {{actorMaxArea.z}}</span>\n          </div>\n      </div>\n    </div>\n  </div>\n  <div class=\"position-absolute top-0 bottom-0 start-0 end-0\" *ngIf=\"showSpinner\">\n    <div class=\"spinner-wrapper pt-5\">\n      <img class=\"m-auto d-block mt-5\" style=\"width:60px\" src=\"https://whymob.dev/ysmart/loading.gif\">\n      <span class=\"m-auto d-block mt-2 w-50 text-center text-secondary\">Loading</span>\n    </div>\n  </div>\n</div>\n\n\n");
+/* harmony default export */ __webpack_exports__["default"] = ("<h3 class=\"text-center fw-bold text-uppercase\">\n  Sessão {{id}}\n</h3>\n<div class=\"position-relative\">\n  <div class=\"viewer-wrapper\" [class.blurred]=\"showSpinner\">\n    <div id=\"viewer\" class=\"position-relative\">\n      <span class=\"d-block end-0 pe-3 position-absolute pt-2 text-end top-0\">\n        {{captureFpsStatus}}<br>\n        {{playbackFpsStatus}}\n        <div *ngIf=\"paused\">Frame Timestamp: {{frameTimestamp}}</div>\n      </span>\n      <span class=\"d-block start-0 ps-3 position-absolute pt-2 text-start top-0\">{{timestamp}}</span>\n      <span class=\"bottom-0 d-block end-0 pb-2 pe-3 position-absolute text-end\">{{statusMsg}}</span>\n    </div>\n    <div class=\"row\" *ngIf=\"!showSpinner\">\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h4>Dados da sessão</h4> \n          <div>Sessão gravada em:</div>\n          <div class=\"fw-bolder\">{{sessionDate}} </div>\n          <div>com uma duração de:</div>\n          <div><span class=\"fw-bolder\">{{sessionDuration}}</span> e <span class=\"fw-bolder\">{{totalFrames}}</span> frames.</div>\n          <div>(Animation frame ID:<span class=\"fw-bolder\">{{requestId}}</span>)</div>\n      </div>\n      <div class=\"col-md-4 col-sm-6 pt-4\">\n          <h5>Dados de oportunidades</h5> \n          <p>Informação a adiccionar.</p>\n          <h6>Playback</h6>\n          <div class=\"mt-2 mb-2\">\n              <div class=\"btn-group me-2\" role=\"group\" aria-label=\"First group\">\n                  <button type=\"button\" class=\"btn btn-outline-secondary\"(click)=\"currentFrame = (currentFrame == 0)? totalFrames-1 : currentFrame -1 \">\n                      <i class=\"bi bi-skip-backward-fill\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\" (click)=\"paused = !paused\">\n                      <i class=\"bi bi-play-fill\" *ngIf=\"paused\"></i>\n                      <i class=\"bi bi-pause-fill\" *ngIf=\"!paused\"></i>\n                  </button>\n                  <button type=\"button\" class=\"btn btn-outline-secondary\" (click)=\"currentFrame = (currentFrame + 1)% totalFrames\">\n                      <i class=\"bi bi-skip-forward-fill\"></i>\n                  </button>\n              </div>\n          </div>\n          <h6>Velocidade Reprodução</h6>\n          <div class=\"mt-2\">\n            <input type=\"range\" class=\"custom-range\" min=\"1\" max=\"60\" step=\"1\" [(ngModel)]=\"fps\" id=\"fps\">\n            <span> {{fps}} fps</span>\n          </div>\n      </div>\n      <div class=\"col-md-4 col-sm-12 pt-4\">\n          <h5>Visualizador</h5>\n          <h6>Estratégia de suavização</h6>\n          <div class=\"form-check form-switch\" *ngIf=\"false\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"smoothing\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"distance = !smoothing; rawData = false\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Velocidade max. (corpo)</label>\n          </div> \n          <div class=\"form-check form-switch\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"distance\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"smoothing = false; rawData = !distance\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Distância Central (corpo)</label>\n          </div>  \n          <div class=\"form-check form-switch\" *ngIf=\"false\">\n              <input class=\"form-check-input\" type=\"checkbox\" id=\"flexSwitchCheckDefault\" [(ngModel)]=\"rawData\"\n              [ngModelOptions]=\"{standalone: true}\" (change)=\"distance = !rawData; smoothing = false\">\n              <label class=\"form-check-label\" for=\"flexSwitchCheckDefault\">Sem suavização</label>\n          </div>\n          <div *ngIf=\"distance\">\n            <label for=\"customRange3\">Limites de distância</label><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"20\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.x\" id=\"actorMaxAreaX\">\n            <span> x: {{actorMaxArea.x}}</span><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"202\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.y\" id=\"actorMaxAreaY\">\n            <span> y: {{actorMaxArea.y}}</span><br>\n            <input type=\"range\" class=\"custom-range\" min=\"0\" max=\"20\" step=\"0.5\" [(ngModel)]=\"actorMaxArea.z\" id=\"actorMaxAreaZ\">\n            <span> z: {{actorMaxArea.z}}</span>\n          </div>\n      </div>\n    </div>\n  </div>\n  <div class=\"position-absolute top-0 bottom-0 start-0 end-0\" *ngIf=\"showSpinner\">\n    <div class=\"spinner-wrapper pt-5\">\n      <img class=\"m-auto d-block mt-5\" style=\"width:60px\" src=\"https://whymob.dev/ysmart/loading.gif\">\n      <span class=\"m-auto d-block mt-2 w-50 text-center text-secondary\">Loading</span>\n    </div>\n  </div>\n</div>\n\n\n");
 
 /***/ })
 

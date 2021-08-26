@@ -4,7 +4,11 @@
 <div class="position-relative">
   <div class="viewer-wrapper" [class.blurred]="showSpinner">
     <div id="viewer" class="position-relative">
-      <span class="d-block end-0 pe-3 position-absolute pt-2 text-end top-0">{{frameTimestamp}}</span>
+      <span class="d-block end-0 pe-3 position-absolute pt-2 text-end top-0">
+        {{captureFpsStatus}}<br>
+        {{playbackFpsStatus}}
+        <div *ngIf="paused">Frame Timestamp: {{frameTimestamp}}</div>
+      </span>
       <span class="d-block start-0 ps-3 position-absolute pt-2 text-start top-0">{{timestamp}}</span>
       <span class="bottom-0 d-block end-0 pb-2 pe-3 position-absolute text-end">{{statusMsg}}</span>
     </div>
@@ -21,7 +25,7 @@
           <h5>Dados de oportunidades</h5> 
           <p>Informação a adiccionar.</p>
           <h6>Playback</h6>
-          <div class="mt-2">
+          <div class="mt-2 mb-2">
               <div class="btn-group me-2" role="group" aria-label="First group">
                   <button type="button" class="btn btn-outline-secondary"(click)="currentFrame = (currentFrame == 0)? totalFrames-1 : currentFrame -1 ">
                       <i class="bi bi-skip-backward-fill"></i>
@@ -34,6 +38,11 @@
                       <i class="bi bi-skip-forward-fill"></i>
                   </button>
               </div>
+          </div>
+          <h6>Velocidade Reprodução</h6>
+          <div class="mt-2">
+            <input type="range" class="custom-range" min="1" max="60" step="1" [(ngModel)]="fps" id="fps">
+            <span> {{fps}} fps</span>
           </div>
       </div>
       <div class="col-md-4 col-sm-12 pt-4">
@@ -56,11 +65,11 @@
           </div>
           <div *ngIf="distance">
             <label for="customRange3">Limites de distância</label><br>
-            <input type="range" class="custom-range" min="0" max="20" step="0.5" [(ngModel)]="actorMaxArea.x" id="customRange3">
+            <input type="range" class="custom-range" min="0" max="20" step="0.5" [(ngModel)]="actorMaxArea.x" id="actorMaxAreaX">
             <span> x: {{actorMaxArea.x}}</span><br>
-            <input type="range" class="custom-range" min="0" max="202" step="0.5" [(ngModel)]="actorMaxArea.y" id="customRange3">
+            <input type="range" class="custom-range" min="0" max="202" step="0.5" [(ngModel)]="actorMaxArea.y" id="actorMaxAreaY">
             <span> y: {{actorMaxArea.y}}</span><br>
-            <input type="range" class="custom-range" min="0" max="20" step="0.5" [(ngModel)]="actorMaxArea.z" id="customRange3">
+            <input type="range" class="custom-range" min="0" max="20" step="0.5" [(ngModel)]="actorMaxArea.z" id="actorMaxAreaZ">
             <span> z: {{actorMaxArea.z}}</span>
           </div>
       </div>
