@@ -71,8 +71,19 @@ export class ViewerComponent implements OnInit {
   }
   ngOnInit() {
     this.http
-    .get('https://ysmartdata.whymob.dev/get/session/' + this.id)
+    .get('https://ysmartdb.whymob.dev/get/session/' + this.id)
     .subscribe((data: any) => {
+
+      data.startTime *= (data.startTime < 2000000000)? 1000 : 1;
+      data.endTime *= (data.endTime < 2000000000)? 1000 : 1;
+      data.startDate = new Date(data.startTime).toLocaleString(
+          'pt-PT'
+      );
+      data.endDate = new Date(data.endTime).toLocaleString(
+          'pt-PT'
+      );
+      data.duration = (data.endTime)?msToHMS(data.endTime-data.startTime):'N/D'
+
       this.sessionDuration = data.duration;
       this.data.frames = Object.entries(data.frames).sort();
       this.totalFrames = this.data.frames.length;
@@ -441,4 +452,16 @@ export class ViewerComponent implements OnInit {
     console.log('stop', this.requestId);
     cancelAnimationFrame(this.requestId);
   }
+}
+function msToHMS( ms ) {
+  // 1- Convert to seconds:
+  let seconds = ms / 1000;
+  // 2- Extract hours:
+  const hours = Math.round( seconds / 3600 ); // 3,600 seconds in 1 hour
+  seconds = seconds % 3600; // seconds remaining after extracting hours
+  // 3- Extract minutes:
+  const minutes = Math.round( seconds / 60 ); // 60 seconds in 1 minute
+  // 4- Keep only seconds not extracted to minutes:
+  seconds = Math.round(seconds % 60);
+  return String(hours).padStart(2,'0')+":"+String(minutes).padStart(2,'0')+":"+String(seconds).padStart(2,'0');
 }

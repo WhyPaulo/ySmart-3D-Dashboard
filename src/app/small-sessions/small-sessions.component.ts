@@ -14,7 +14,7 @@ export class SmallSessionsComponent implements OnInit {
 
   ngOnInit() {
     this.http
-      .get('https://ysmartdata.whymob.dev/get/small-sessions/'+this.limit)
+      .get('https://ysmartdb.whymob.dev/get/small-sessions/'+this.limit)
       .subscribe(Response => {
         // If response comes
         this.sessions = Response;

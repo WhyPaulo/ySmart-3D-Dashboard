@@ -5,6 +5,7 @@
       <th scope="col">Sessão ID</th>
       <th scope="col">Início</th>
       <th scope="col">Fim</th>
+      <th scope="col">Duração</th>
       <th scope="col">link</th>
     </tr>
   </thead>
@@ -13,6 +14,7 @@
       <th scope="row">{{session.session}}</th>
       <td>{{session.startDate}}</td>
       <td>{{session.endDate}}</td>
+      <td>{{session.duration}}</td>
       <td>
         <a [routerLink]="['/view/', session.session]">Visualizar</a>
       </td>

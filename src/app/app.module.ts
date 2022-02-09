@@ -16,9 +16,13 @@ import { AllSessionsComponent } from './all-sessions/all-sessions.component';
 import { SessionDetailsComponent } from './session-details/session-details.component';
 import { ProcessedSessionsComponent } from './processed-sessions/processed-sessions.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { PagSessionsComponent } from './pag-sessions/pag-sessions.component';
+
+import { MaterialModule } from './material/material.module';
 
 const routes: Routes = [
-  { path: '', component: AllSessionsComponent },
+  //{ path: '', component: AllSessionsComponent },
+  { path: '', component: PagSessionsComponent },
   { path: 'small', component: SmallSessionsComponent },
   { path: 'processed', component: ProcessedSessionsComponent },
   { path: 'view/:id', component: ViewerComponent }
@@ -32,6 +36,7 @@ const routes: Routes = [
     HttpClientModule,
     NgbModule,
     RouterModule.forRoot(routes, {useHash: true}),
+    MaterialModule,
     BrowserAnimationsModule
   ],
   exports: [RouterModule],
@@ -41,7 +46,8 @@ const routes: Routes = [
     ViewerComponent,
     AllSessionsComponent,
     SessionDetailsComponent,
-    ProcessedSessionsComponent
+    ProcessedSessionsComponent,
+    PagSessionsComponent
   ],
   bootstrap: [AppComponent],
   providers: [

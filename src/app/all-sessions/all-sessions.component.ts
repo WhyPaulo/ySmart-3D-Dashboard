@@ -15,7 +15,7 @@ export class AllSessionsComponent implements OnInit {
 
   ngOnInit() {
     this.http
-      .get('https://ysmartdata.whymob.dev/get/sessions')
+      .get('https://ysmart01.azurewebsites.net/get/sessions')
       .subscribe(Response => {
         // If response comes
         this.sessions = Response;
