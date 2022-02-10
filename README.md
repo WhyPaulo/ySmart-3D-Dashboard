@@ -2,4 +2,4 @@
 
 Three.js visualizer of captured data
 
-(use npm install --legacy-peer-deps)
+(use node 14.0.0)
